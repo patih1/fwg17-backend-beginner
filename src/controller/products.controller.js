@@ -1,69 +1,86 @@
-const userModel = require('../models/products.model')
+const productsModel = require('../models/products.model')
 
 exports.getAll = async (req, res) => {
-  const users = await userModel.findAll()
-  return res.json({
-    success: true,
-    message: 'List All Users',
-    result: users
-  })
+  try {
+    const products = await productsModel.findAll()
+    return res.json({
+      success: true,
+      message: 'List All products',
+      results: products
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
 }
 
 exports.detail = async (req, res) => {
   const id = Number(req.params.id)
-  const user = await userModel.findOne(id)
+  const products = await productsModel.findOne(id)
 
-  if(!user){
+  if(!products){
     return res.status(404).json({
       success: false,
-      message: `User not found`
+      message: `product not found`,
+      result: products
     })
   }
 
   return res.json({
     success: true,
-    message: `Detail user`,
-    result: user
+    message: `Detail products`,
+    result: products
   })
 }
 
 exports.create = async (req,res) => {
   try {
-    const user = await userModel.insert(req.body)
+    const products = await productsModel.insert(req.body)
     return res.json({
       success: true,
-      message: 'Create user successfully',
-      result: user
+      message: 'Create product successfully',
+      result: products
     })
   }catch(err){
-    return res.status(404).json({
+    return res.status(500).json({
       success: false,
-      message: `${console.log(err)}`
+      message: 'Internal server error'
     })
   }
 }
 
 exports.update = async (req,res) => {
+  const {id} = req.params
   try {
-    await userModel.update(req.params.id, req.body)
+    const products = await productsModel.update(id, req.body)
     return res.json({
       success: true,
-      message: 'Update user successfully'
+      message: 'Update product successfully',
+      result: products
     })
   }catch(err){
     return res.status(404).json({
       success: false,
-      message: `${console.log(err)}`
+      message: `Product not found`
     })
   }
 }
 
 exports.delete = async(req,res) => {
   const id = Number(req.params.id)
-  await userModel.delete(id)
-
-  return res.json({
-    success: true,
-    message: `successfully delete user`
-  })
+  const products = await productsModel.delete(id)
+  try {
+    return res.json({
+      success: true,
+      message: `successfully delete product`,
+      result: products
+    })
+  }catch(err){
+    return res.status(404).json({
+      success: false,
+      message: `Product not found`
+    })
+  }
 }
