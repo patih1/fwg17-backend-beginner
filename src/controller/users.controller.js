@@ -44,23 +44,25 @@ exports.createUsers = async (req,res) => {
   }catch(err){
     return res.status(404).json({
       success: false,
-      message: `${console.log(err)}`
+      message: 'error'
     })
   }
 }
 
 // export function updateUser
 exports.updateUser = async (req,res) => {
+  const {id} = req.params
   try {
-    await userModel.update(req.params.id, req.body)
+    const user = await userModel.update(id, req.body)
     return res.json({
       success: true,
-      message: 'Update user successfully'
+      message: 'Update product successfully',
+      result: user
     })
   }catch(err){
     return res.status(404).json({
       success: false,
-      message: `${console.log(err)}`
+      message: `Product not found`
     })
   }
 }

@@ -46,10 +46,11 @@ exports.create = async (req,res) => {
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server Error'
     })
   }
 }
+
 
 exports.update = async (req,res) => {
   const {id} = req.params
@@ -84,3 +85,84 @@ exports.delete = async(req,res) => {
     })
   }
 }
+
+exports.searchByName = async(req,res) => {
+  const {search} = req.query
+  const products = await productsModel.searchByName(search)
+  try{
+    return res.json({
+      success: true,
+      message: 'Products sorted by name',
+      results: products
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+}
+
+
+
+exports.searchByPrice = async (req, res) => {
+const {max, min, ruth} = req.query
+
+  try {
+    const products = await productsModel.searchByPrice(max, min, ruth)
+    return res.json({
+      success: true,
+      message: 'List All products',
+      results: products
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
+  }
+}
+
+exports.searchByCategories = async (req, res) => {
+  const {category} = req.query
+  // console.log(category)
+    try {
+      const products = await productsModel.searchByCategories(category)
+      return res.json({
+        success: true,
+        message: 'List All products',
+        results: products
+      })
+    }catch(err){
+      return res.status(500).json({
+        success: false,
+        message: err
+      })
+    }
+  }
+
+
+
+// exports.getAll2 = async (req, res) => {
+//   const {
+//     search,
+//     sortBy,
+//     order,
+//     page
+//   } = req.query
+
+//   try {
+//     const products = await productsModel.findAll2(search, sortBy, order, page)
+//     return res.json({
+//       success: true,
+//       message: 'List All products',
+//       results: products
+//     })
+//   }catch(err){
+//     return res.status(500).json({
+//       success: false,
+//       message: err
+//     })
+//   }
+// }
+

@@ -15,22 +15,57 @@ exports.findOne = async (id)=>{
 }
 
 exports.insert = async (data)=>{
-  const sql = `
-  INSERT INTO "users" 
-  ("fullName", "email", "password", "address", "picture", "phoneNumber", "role")
-  VALUES
-  ($1,$2,$3,$4,$5,$6,$7)
-  RETURNING *
-  `
-  const values = [data.fullName, data.email, data.password, data.address, data.picture, data.phoneNumber, data.role]
+  const col = []
+  const values = []
+  const dollar = []
+
+  function testnumber(str){
+    return /^[0-9]/.test(str)
+  }
+
+  for(let i in data){
+    if(testnumber([i]) === false){
+      values.push(data[i])
+    }else {
+      values.push(Number(data[i]))
+    }
+    
+    col.push(`"${i}"`)
+    dollar.push(`$${values.length}`)
+  }
+  console.log(col)
+  const sql = `INSERT INTO "users" (${col.join(', ')}) VALUES (${dollar.join(', ')}) returning *`
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
 
 exports.update = async (id, data)=>{
+  const col = []
+  const values = [] //kopi
+  values.push(Number(id))
 
-  const sql = `UPDATE "users" set "password" = $2 WHERE "id" = $1`
-  const values = [id, data.password]
+  function testnumber(str){
+    return /^[0-9]/.test(str)
+  }
+
+  for(let i in data){
+    if(testnumber([i]) === false){
+      values.push(data[i])
+    }else {
+      values.push(Number(data[i]))
+    }
+    
+    col.push(`"${i}"=$${values.length}`)
+  }
+  console.log(col)
+  const sql = `UPDATE "users" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`
+  const {rows} = await db.query(sql,values)
+  return rows[0] 
+}
+
+exports.delete = async (id)=>{
+  const sql = `DELETE FROM "users" WHERE "id" = $1`
+  const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
