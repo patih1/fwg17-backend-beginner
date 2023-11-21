@@ -37,7 +37,9 @@ exports.insert = async (data)=>{
     col.push(`"${i}"`)
     dollar.push(`$${values.length}`)
   }
-  console.log(col)
+  // console.log(dollar.join(', '))
+  // console.log(values)
+  // console.log(col.join(', '))
   const sql = `INSERT INTO "products" (${col.join(', ')}) VALUES (${dollar.join(', ')}) returning *`
   const {rows} = await db.query(sql,values)
   return rows[0]
@@ -69,7 +71,7 @@ exports.update = async (id, data)=>{
 }
 
 exports.delete = async (id)=>{
-  const sql = `DELETE FROM "products" WHERE "id" = $1`
+  const sql = `DELETE FROM "products" WHERE "id" = $1 RETURNING *`
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
@@ -93,6 +95,7 @@ exports.searchByPrice = async(max = 1000000, min = 0, ruth) => {
   const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
   FROM "products" WHERE "basePrice" <= $1 AND "basePrice" >= $2 
   ORDER BY "basePrice" ${ruth}
+  RETURNING *
   `
   const values = [max, min]
   const {rows} = await db.query(sql,values)
@@ -117,21 +120,34 @@ exports.searchByCategories = async(category) => {
   return rows
 }
 
-// exports.findAll2 = async (keyword='', sortBy, order, page=1)=>{
-//   const visibleColumn = ['id','createdAt','name', 'basePrice']
-//   const allowOrder = ['asc', 'desc']
-//   const limit = 10
-//   const offset = (page - 1) * limit
+exports.findAll2 = async (keyword='', sortBy, order, page=1)=>{
+  const visibleColumn = ['id','createdAt', 'name', `basePrice`]
+  const allowOrder = ['asc', 'desc']
+  const limit = 10
+  const offset = (page - 1) * limit
+  let sort
+  
+  order = allowOrder.includes(order) ? order : 'asc'
 
-//   sortBy = visibleColumn.includes(sortBy) ? sortBy : 'id'
-//   order = allowOrder.includes(order) ? order : 'asc'
+  if(typeof sortBy === 'string'){
+    sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
+    sort = `"${sort}"`
+    console.log(sort)
+  }else{
+    sort = visibleColumn.filter(value => sortBy.includes(value))
+    console.log(sort)
+    sort = sort.join('","')
+    sort = `"${sort}"`
+    console.log(sort)
+  }
 
-//   const sql = `SELECT *
-//   FROM "products" WHERE "name" ILIKE $1
-//   ORDER BY ${sortBy} ${order}
-//   LIMIT ${limit} OFFSET ${offset}
-//   `
-//   const values = [`%${keyword}%`]
-//   const {rows} = await db.query(sql,values)
-//   return rows
-// }
+  const sql = `SELECT *
+  FROM "products" WHERE "name" ILIKE $1
+  ORDER BY ${sort} ${order}
+  LIMIT ${limit} OFFSET ${offset}
+  RETURNING *
+  `
+  const values = [`%${keyword}%`]
+  const {rows} = await db.query(sql,values)
+  return rows
+}

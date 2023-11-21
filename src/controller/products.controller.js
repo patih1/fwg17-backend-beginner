@@ -46,7 +46,7 @@ exports.create = async (req,res) => {
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server Error'
+      message: err
     })
   }
 }
@@ -143,26 +143,28 @@ exports.searchByCategories = async (req, res) => {
 
 
 
-// exports.getAll2 = async (req, res) => {
-//   const {
-//     search,
-//     sortBy,
-//     order,
-//     page
-//   } = req.query
+exports.getAll2 = async (req, res) => {
+  const {
+    search,
+    sortBy,
+    order,
+    page
+  } = req.query
 
-//   try {
-//     const products = await productsModel.findAll2(search, sortBy, order, page)
-//     return res.json({
-//       success: true,
-//       message: 'List All products',
-//       results: products
-//     })
-//   }catch(err){
-//     return res.status(500).json({
-//       success: false,
-//       message: err
-//     })
-//   }
-// }
+  // console.log(sortBy)
+
+  try {
+    const products = await productsModel.findAll2(search, sortBy, order, page)
+    return res.json({
+      success: true,
+      message: 'List All products',
+      results: products
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: err
+    })
+  }
+}
 
