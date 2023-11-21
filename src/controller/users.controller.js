@@ -2,12 +2,26 @@ const userModel = require('../models/users.model')
 
 // export function getAllUsers
 exports.getAllUsers = async (req, res) => {
-  const users = await userModel.findAll()
-  return res.json({
-    success: true,
-    message: 'List All Users',
-    result: users
-  })
+  const {
+    search,
+    sortBy,
+    order,
+    page
+  } = req.query
+
+  try {
+    const user = await userModel.findAll(search, sortBy, order, page)
+    return res.json({
+      success: true,
+      message: 'List all users',
+      results: user
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: 'Innternal server Error'
+    })
+  }
 }
 
 // export function detailUser
@@ -39,13 +53,28 @@ exports.createUsers = async (req,res) => {
     return res.json({
       success: true,
       message: 'Create user successfully',
-      result: user
+      results: user
     })
   }catch(err){
-    return res.status(404).json({
-      success: false,
-      message: 'error'
-    })
+    switch(err.code){
+      case "23505":
+      return res.status(411).json({
+        success: false,
+        message: 'email is unique'
+      })
+      break;
+      case '23502':
+      return res.status(411).json({
+        success: false,
+        message: 'fullName, password, email cannot be empty'
+      })
+      break;
+      default: 
+      return res.status(500).json({
+        success: false,
+        message: err.code
+      })
+    }
   }
 }
 
@@ -54,26 +83,56 @@ exports.updateUser = async (req,res) => {
   const {id} = req.params
   try {
     const user = await userModel.update(id, req.body)
-    return res.json({
-      success: true,
-      message: 'Update product successfully',
-      result: user
-    })
+    if(user){
+      return res.json({
+        success: true,
+        message: 'Update user successfully',
+        results: user
+      })
+    }else{
+      return res.status(404).json({
+        success: false,
+        message: 'user not found'
+      })
+    }
   }catch(err){
-    return res.status(404).json({
-      success: false,
-      message: `Product not found`
-    })
+    switch(err.code){
+      case "23505":
+      return res.status(411).json({
+        success: false,
+        message: 'email is unique'
+      })
+      break;
+      default: 
+      return res.status(500).json({
+        success: false,
+        message: err.code
+      })
+    }
   }
 }
 
 // export function updateUser
 exports.deleteUser = async(req,res) => {
   const id = Number(req.params.id)
-  await userModel.delete(id)
-
-  return res.json({
-    success: true,
-    message: `successfully delete user`
-  })
+  const user = await userModel.delete(id)
+  try {
+    if(user){
+      return res.json({
+        success: true,
+        message: `successfully delete user`,
+        results: user
+      })
+    }else{
+      return res.status(404).json({
+        success: false,
+        message: `user not found`
+      })
+    }
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: `Internal server error`
+    })
+  }
 }

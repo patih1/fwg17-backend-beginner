@@ -2,7 +2,7 @@ const productsRouter = require('express').Router()
 
 const productsController = require('../controller/products.controller')
 
-productsRouter.get('/', productsController.getAll2)
+productsRouter.get('/', productsController.getAll)
 productsRouter.get('/', productsController.searchByPrice)
 productsRouter.get('/', productsController.searchByName)
 productsRouter.get('/', productsController.searchByCategories)

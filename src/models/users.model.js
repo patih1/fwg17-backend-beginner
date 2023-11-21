@@ -1,11 +1,33 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async ()=>{
-  const sql = `SELECT * FROM "users"`
-  const values = []
+exports.findAll = async (keyword='', sortBy, order, page=1)=>{
+  const visibleColumn = ['id','createdAt', 'fullName']
+  const allowOrder = ['asc', 'desc']
+  const limit = 10
+  const offset = (page - 1) * limit
+  let sort
+  
+  order = allowOrder.includes(order) ? order : 'asc'
+
+  if(typeof sortBy === 'string'){
+    sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
+    sort = `"${sort}"`
+  }else{
+    sort = visibleColumn.filter(value => sortBy.includes(value))
+    sort = sort.join('","')
+    sort = `"${sort}"`
+  }
+
+  const sql = `SELECT *
+  FROM "users" WHERE "fullName" ILIKE $1
+  ORDER BY ${sort} ${order}
+  LIMIT ${limit} OFFSET ${offset}
+  `
+  const values = [`%${keyword}%`]
   const {rows} = await db.query(sql,values)
   return rows
 }
+
 
 exports.findOne = async (id)=>{
   const sql = `SELECT * FROM "users" WHERE "id" = $1`
@@ -41,7 +63,7 @@ exports.insert = async (data)=>{
 
 exports.update = async (id, data)=>{
   const col = []
-  const values = [] //kopi
+  const values = []
   values.push(Number(id))
 
   function testnumber(str){
@@ -64,14 +86,7 @@ exports.update = async (id, data)=>{
 }
 
 exports.delete = async (id)=>{
-  const sql = `DELETE FROM "users" WHERE "id" = $1`
-  const values = [id]
-  const {rows} = await db.query(sql,values)
-  return rows[0]
-}
-
-exports.delete = async (id)=>{
-  const sql = `DELETE FROM "users" WHERE "id" = $1`
+  const sql = `DELETE FROM "users" WHERE "id" = $1 RETURNING *`
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
