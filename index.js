@@ -27,7 +27,7 @@ app.use('/', require('./src/routers'))
 app.get('/', (req, res) => {
   return res.json ({
     success: true,
-    message: `asdadasd`
+    message: `connection established`
   })
 })
 
