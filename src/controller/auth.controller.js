@@ -2,23 +2,47 @@ const argon = require('argon2')
 const userModel = require('../models/users.model')
 
 // export function login
-exports.login = (req, res) => {
-  // destructuring username & password dari body
-  const {username,password} = req.body
- 
+exports.login = async (req, res) => {
+  const {email, password} = req.body
+  const user = await userModel.findOneByEmail(email)
+  try{
+    if(!user){
+      throw Error('wrong')
+    }
 
-  // jika email dan password sesuai dengan statement if, maka response dalam json, message login success
-  if(username === "admin@mail.com" && password === "1234"){
-    return res.json ({
-      success: true,
-      message: 'Login success'
-    })
-  } else{ // jika email dan/atau password tidak sesuai dengan statement if, maka response dalam json, message Wrong username or password
-    return res.json ({
-      success: false,
-      message: "Wrong username or password"
-    })
+      const verify = await argon.verify(user.password, password)
+
+    if(!verify){
+      throw Error('wrong')
+      }
+
+      if(verify){
+        return res.json({
+          success: true,
+          message: 'login successfully',
+            result: {
+              token: 'asdawasd'
+            }
+        })
+      }
+
+
+  }catch(err){
+    switch(err.code){
+      case 'wrong':
+        return res.status(401).json({
+          success: false,
+          message: 'wrong email or password'
+        })
+      break;
+      default:
+        return res.status(500).json({
+          success: false,
+          message: err
+        })
+    }
   }
+
 }
 
 
