@@ -6,6 +6,7 @@ const authController = require('../controller/auth.controller')
 
 // mengirimkan data login menggunakan callback function controller pada endpoint /login
 authRouter.post('/login', authController.login)
+authRouter.post('/register', authController.register)
 
 // mengexport userRouter agar dapat digunakan pada file yang membutuhkan
 module.exports = authRouter
