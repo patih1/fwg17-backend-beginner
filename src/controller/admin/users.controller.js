@@ -1,3 +1,4 @@
+const argon = require('argon2')
 const userModel = require('../../models/users.model')
 
 // export function getAllUsers
@@ -81,6 +82,8 @@ exports.createUsers = async (req,res) => {
 // export function updateUser
 exports.updateUser = async (req,res) => {
   const {id} = req.params
+  const {password} = req.body
+  const hashedPassword = await argon.hash(password)
   try {
     const user = await userModel.update(id, req.body)
     if(user){

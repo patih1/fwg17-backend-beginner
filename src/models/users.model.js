@@ -61,7 +61,7 @@ exports.insert = async (data)=>{
   return rows[0]
 }
 
-exports.update = async (id, data)=>{
+exports.update = async (id, data, hashedPassword)=>{
   const col = []
   const values = []
   values.push(Number(id))
@@ -71,7 +71,10 @@ exports.update = async (id, data)=>{
   }
 
   for(let i in data){
-    if(testnumber([i]) === false){
+
+    if(i === 'password' && hashedPassword){
+      values.push(hashedPassword)
+    }else if(testnumber([i]) === false){
       values.push(data[i])
     }else {
       values.push(Number(data[i]))

@@ -1,5 +1,6 @@
 const argon = require('argon2')
 const userModel = require('../models/users.model')
+const jwt = require('jsonwebtoken')
 
 // export function login
 exports.login = async (req, res) => {
@@ -16,19 +17,26 @@ exports.login = async (req, res) => {
       throw Error('wrong')
       }
 
+      const payload = {
+        id: user.id,
+        role: user.role
+      }
+
+      const token = jwt.sign(payload, process.env.APP_SECRET || 'secretkey')
+
       if(verify){
         return res.json({
           success: true,
           message: 'login successfully',
             result: {
-              token: 'asdawasd'
+              token: token
             }
         })
       }
 
 
   }catch(err){
-    switch(err.code){
+    switch(err.message || err.code){
       case 'wrong':
         return res.status(401).json({
           success: false,
@@ -50,20 +58,29 @@ exports.register = async (req, res) => {
   try{
     const {fullName, email, password} = req.body
     const hashedPassword = await argon.hash(password)
-    const user = userModel.insert({
+    const user = await userModel.insert({
       fullName,
       email,
       password: hashedPassword
     })
+
     return res.json({
       success: true,
-      message: `${user.fullName}Registered successfully`
+      message: `Registered successfully`
     })
   }catch(err){
-    return res.json({
-      success: false,
-      message: err.message
-    })
-    
+    switch(err.code){
+      case "23505":
+        return res.status(411).json({
+          success: false,
+          message: 'Email already used'
+        })
+      break;
+      default:
+        return res.json({
+        success: false,
+        message: err.message
+      })
+    }
   }
 }
