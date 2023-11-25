@@ -1,7 +1,7 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy, order, page=1)=>{
-  const visibleColumn = ['id','createdAt', 'fullName']
+exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
+  const visibleColumn = ['id','createdAt', 'name']
   const allowOrder = ['asc', 'desc']
   const limit = 10
   const offset = (page - 1) * limit
@@ -19,7 +19,7 @@ exports.findAll = async (keyword='', sortBy, order, page=1)=>{
   }
 
   const sql = `SELECT *
-  FROM "users" WHERE "fullName" ILIKE $1
+  FROM "tags" WHERE "name" ILIKE $1
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
@@ -28,9 +28,9 @@ exports.findAll = async (keyword='', sortBy, order, page=1)=>{
   return rows
 }
 
-
 exports.findOne = async (id)=>{
-  const sql = `SELECT * FROM "users" WHERE "id" = $1`
+  const sql = `SELECT *
+  FROM "tags" WHERE "id" = $1`
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
@@ -46,7 +46,7 @@ exports.insert = async (data)=>{
   }
 
   for(let i in data){
-    if(testnumber([i]) === false){
+    if(testnumber(i) === false){
       values.push(data[i])
     }else {
       values.push(Number(data[i]))
@@ -55,15 +55,15 @@ exports.insert = async (data)=>{
     col.push(`"${i}"`)
     dollar.push(`$${values.length}`)
   }
-  console.log(col)
-  const sql = `INSERT INTO "users" (${col.join(', ')}) VALUES (${dollar.join(', ')}) returning *`
+  const sql = `INSERT INTO "tags" (${col.join(', ')}) VALUES (${dollar.join(', ')}) RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
 
-exports.update = async (id, data, hashedPassword)=>{
+
+exports.update = async (id, data)=>{
   const col = []
-  const values = []
+  const values = [] 
   values.push(Number(id))
 
   function testnumber(str){
@@ -71,7 +71,6 @@ exports.update = async (id, data, hashedPassword)=>{
   }
 
   for(let i in data){
-
     if(testnumber([i]) === false){
       values.push(data[i])
     }else {
@@ -81,21 +80,15 @@ exports.update = async (id, data, hashedPassword)=>{
     col.push(`"${i}"=$${values.length}`)
   }
   console.log(col)
-  const sql = `UPDATE "users" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`
+  const sql = `UPDATE "tags" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
+  RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0] 
 }
 
 exports.delete = async (id)=>{
-  const sql = `DELETE FROM "users" WHERE "id" = $1 RETURNING *`
+  const sql = `DELETE FROM "tags" WHERE "id" = $1 RETURNING *`
   const values = [id]
-  const {rows} = await db.query(sql,values)
-  return rows[0]
-}
-
-exports.findOneByEmail = async (email)=>{
-  const sql = `SELECT * FROM "users" WHERE "email" = $1`
-  const values = [email]
   const {rows} = await db.query(sql,values)
   return rows[0]
 }

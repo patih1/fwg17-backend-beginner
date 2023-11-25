@@ -83,7 +83,7 @@ exports.createUsers = async (req,res) => {
 exports.updateUser = async (req,res) => {
   const {id} = req.params
   const {password} = req.body
-  const hashedPassword = await argon.hash(password)
+  // const hashedPassword = await argon.hash(password)
   try {
     const user = await userModel.update(id, req.body)
     if(user){
