@@ -80,8 +80,7 @@ exports.update = async (id, data)=>{
     col.push(`"${i}"=$${values.length}`)
   }
   console.log(col)
-  const sql = `UPDATE "products" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
-  RETURNING *`
+  const sql = `UPDATE "products" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0] 
 }

@@ -3,6 +3,7 @@ const userRouter = require('express').Router()
 
 // menjalin hubungan antara file ini dengan file users.controller
 const userController = require('../../controller/admin/users.controller')
+const uploadMiddleware = require('../../middleware/upload.middleware')
 
 // get digunakan untuk mengambil seluruh data
 // get(denganParameter) digunakan untuk mengambil data spesifik sesuai yang di definisikan dalam parameter
@@ -17,7 +18,7 @@ userRouter.get('/:id', userController.detailUser)
 // menginsert data menggunakan menggunakan callback function dari controller pada endpoint /
 userRouter.post('/', userController.createUsers)
 // mengubah data menggunakan menggunakan callback function dari controller pada endpoint /:id sebagai parameter data yang ingin diubah
-userRouter.patch('/:id', userController.updateUser)
+userRouter.patch('/:id', uploadMiddleware('users').single('picture'), userController.updateUser)
 // menghapus data menggunakan menggunakan callback function dari controller pada endpoint /:id sebagai parameter data yang ingin dihapus
 userRouter.delete('/:id', userController.deleteUser)
 

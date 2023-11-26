@@ -75,7 +75,16 @@ exports.create = async (req,res) => {
 
 exports.update = async (req,res) => {
   const {id} = req.params
-  console.log(req.body)
+
+  if(req.body.password){
+    req.body.password = await argon.hash(req.body.password)
+  }
+
+  if(req.file){
+    req.body.image = req.file.filename
+  }
+
+  // console.log(req.body)
   try {
     const products = await productsModel.update(id, req.body)
     if(products){
