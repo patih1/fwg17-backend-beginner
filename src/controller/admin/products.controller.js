@@ -1,4 +1,7 @@
 const productsModel = require('../../models/products.model')
+const uploadMiddleware = require('../../middleware/upload.middleware')
+const path = require('path')
+const upload = uploadMiddleware('products').single()
 
 exports.getAll = async (req, res) => {
   const {
@@ -44,6 +47,10 @@ exports.detail = async (req, res) => {
 exports.create = async (req,res) => {
   try {
     const products = await productsModel.insert(req.body)
+    if(req.file){
+      req.body.image = req.file.filename
+    }
+
     return res.json({
       success: true,
       message: 'Create product successfully',
@@ -100,7 +107,13 @@ exports.update = async (req,res) => {
       })
     }
   }catch(err){
-    switch(err.code){
+    switch(err.code || err.message){
+      case "wrong ext":
+      return res.status(400).json({
+        success: false,
+        message: err.message
+      })
+      break;
       case "23505":
       return res.status(411).json({
         success: false,

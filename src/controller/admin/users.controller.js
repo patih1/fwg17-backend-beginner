@@ -54,6 +54,11 @@ exports.createUsers = async (req,res) => {
       req.body.password = await argon.hash(req.body.password)
     }
 
+    if(req.body.password){
+      req.body.password = await argon.hash(req.body.password)
+    }
+
+
     const user = await userModel.insert(req.body)
     return res.json({
       success: true,

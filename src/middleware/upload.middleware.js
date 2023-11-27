@@ -10,31 +10,31 @@ const storage = (dest, filename) => multer.diskStorage({
   filename : (req, file, cb) => {
     const extention = {
       'image/jpeg' : 'jpeg',
-      'image/png' : 'png'
+      'image/png' : 'png',
+      'image/jpg' : 'jpg'
     }
-    if(!filename){
+    if(!filename && req.params.id){
       filename = req.params.id
+    }else if(!filename){
+      filename = new Date().getTime()
     }
     cb(null, `${filename}.${extention[file.mimetype]}`)
   }
 })
 
-// const filefilter = (req, file, cb) => {
-
-//   console.log(file.originalname)
-//   const ext = path.extname(file.originalname)
-//   if(ext !== 'png' && ext !== 'jpeg'){
-//     return cb(new Error('Only images are allowed'))
-//   }
-//   return cb(null, true)
-// }
-
 const uploadMiddleware = (type, file) => {
 
   const processUpload = multer ({
-    // fileFilter: filefilter,
+    fileFilter: (req, file, cb) => {
+      const extention = ['image/jpeg', 'image/png', 'image/jpg']
+      if(!extention.includes(file.mimetype)){
+        cb(new Error ('wrong ext'), false)
+      }else{
+        cb(null, true)
+      }
+      },
     storage : storage(type, file),
-    limits : {fileSize: 2 * 1000 * 1000}
+    limits : {fileSize: 2 * 1024 * 1024}
   })
   return processUpload
 }

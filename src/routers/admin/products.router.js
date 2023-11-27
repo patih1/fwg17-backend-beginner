@@ -7,7 +7,7 @@ productsRouter.get('/', productsController.searchByPrice)
 productsRouter.get('/', productsController.searchByName)
 productsRouter.get('/', productsController.searchByCategories)
 productsRouter.get('/:id', productsController.detail)
-productsRouter.post('/', productsController.create)
+productsRouter.post('/', uploadMiddleware('products').single('image'), productsController.create)
 productsRouter.patch('/:id', uploadMiddleware('products').single('image'), productsController.update)
 productsRouter.delete('/:id', productsController.delete)
 

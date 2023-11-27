@@ -16,7 +16,7 @@ userRouter.get('/', userController.getAllUsers)
 // mengambil data menggunakan menggunakan callback function dari controller pada endpoint /:id sebagai parameter data yang ingin diambil
 userRouter.get('/:id', userController.detailUser)
 // menginsert data menggunakan menggunakan callback function dari controller pada endpoint /
-userRouter.post('/', userController.createUsers)
+userRouter.post('/', uploadMiddleware('users').single('picture'), userController.createUsers)
 // mengubah data menggunakan menggunakan callback function dari controller pada endpoint /:id sebagai parameter data yang ingin diubah
 userRouter.patch('/:id', uploadMiddleware('users').single('picture'), userController.updateUser)
 // menghapus data menggunakan menggunakan callback function dari controller pada endpoint /:id sebagai parameter data yang ingin dihapus
