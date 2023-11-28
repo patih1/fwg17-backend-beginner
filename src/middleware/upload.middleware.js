@@ -23,15 +23,15 @@ const storage = (dest, filename) => multer.diskStorage({
 const uploadMiddleware = (type, file) => {
 
   const processUpload = multer ({
+    storage : storage(type, file),
     fileFilter: (req, file, cb) => {
       const extention = ['image/jpeg', 'image/png', 'image/jpg']
       if(!extention.includes(file.mimetype)){
-        cb(new Error ('wrong ext'), false)
+        cb(new Error('wrong ext'), false)
       }else{
         cb(null, true)
       }
       },
-    storage : storage(type, file),
     limits : {fileSize: 2 * 1024 * 1024}
   })
   return processUpload

@@ -2,13 +2,21 @@ const productsModel = require('../../models/products.model')
 const path = require('path')
 const fs = require('fs/promises')
 
+const uploadMiddleware = require('../../middleware/upload.middleware')
+const upload = uploadMiddleware('products').single('image')
+
 exports.getAll = async (req, res) => {
   const {
     search,
     sortBy,
     order,
-    page
   } = req.query
+
+  let {page} = req.query
+
+  if(!page){
+    page = 1
+  }
 
   try {
     const count = await productsModel.countAll(search)
@@ -24,7 +32,7 @@ exports.getAll = async (req, res) => {
         currentPage: Number(page),
         totalPage,
         nextPage: nextPage < totalPage ? nextPage : null,
-        prevPage: prevPage < 1 ? prevPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
         totalData: Number(count)
       },
       results: products
@@ -56,61 +64,92 @@ exports.detail = async (req, res) => {
 }
 
 exports.create = async (req,res) => {
-  try {
-    if(req.file){
-      req.body.image = req.file.filename
-    }
-    const products = await productsModel.insert(req.body)
 
-    return res.json({
-      success: true,
-      message: 'Create product successfully',
-      results: products
-    })
-  }catch(err){
-    switch(err.code){
-      case "23505":
-      return res.status(411).json({
-        success: false,
-        message: 'name is unique'
+  upload(req, res, async (err) =>{
+    
+
+    try {
+
+      if(req.file){
+        req.body.image = req.file.filename
+      }
+
+      if(err){
+        throw err
+      }
+      const products = await productsModel.insert(req.body)
+  
+      return res.json({
+        success: true,
+        message: 'Create product successfully',
+        results: products
       })
-      break;
-      case '23502':
-      return res.status(411).json({
-        success: false,
-        message: 'name, description, basePrice cannot be null'
-      })
-      break;
-      default: 
-      return res.status(500).json({
-        success: false,
-        message: err.code
-      })
+    }catch(err){
+      switch(err.code || err.message){
+        case 'LIMIT_FILE_SIZE':
+          return res.status(400).json({
+            success: false,
+            message: err.message
+          })
+        break;
+        case 'wrong ext':
+          return res.status(400).json({
+            success: false,
+            message: err.message
+          })
+        break;
+        case "23505":
+        return res.status(411).json({
+          success: false,
+          message: 'name is unique'
+        })
+        break;
+        case '23502':
+        return res.status(411).json({
+          success: false,
+          message: 'name, description, basePrice cannot be null'
+        })
+        break;
+        default: 
+        return res.status(500).json({
+          success: false,
+          message: err
+        })
+      }
     }
-  }
+  })
+ 
 }
 
 
 exports.update = async (req,res) => {
-  const {id} = req.params
+  upload(req, res, async (err) => {
+
+  
+  // console.log(req.body)
+  try {
+    if(err){
+      throw err
+    }
+
+    const {id} = req.params
   const data = await productsModel.findOne(id)
   if(req.body.password){
     req.body.password = await argon.hash(req.body.password)
   }
-
+ 
   // console.log(data)
 
   if(req.file){
     if(data.image){
       const uploadLocation = path.join(global.path, 'upload', 'products', data.image)
-      fs.rm(uploadLocation)
+      await fs.rm(uploadLocation)
       console.log(path)
     }
     req.body.image = req.file.filename
   }
 
-  // console.log(req.body)
-  try {
+
     const products = await productsModel.update(id, req.body)
     if(products){
       return res.json({
@@ -126,6 +165,12 @@ exports.update = async (req,res) => {
     }
   }catch(err){
     switch(err.code || err.message){
+      case 'LIMIT_FILE_SIZE':
+        return res.status(400).json({
+          success: false,
+          message: err.message
+        })
+      break;
       case "wrong ext":
       return res.status(400).json({
         success: false,
@@ -145,6 +190,9 @@ exports.update = async (req,res) => {
       })
     }
   }
+  })
+
+  
 }
 
 exports.delete = async(req,res) => {
@@ -153,7 +201,7 @@ exports.delete = async(req,res) => {
   console.log(products.image)
   if(products.image){
     const uploadLocation = path.join(global.path, 'upload', 'products', products.image)
-      fs.rm(uploadLocation)
+      await fs.rm(uploadLocation)
   }
   try {
     if(products){
