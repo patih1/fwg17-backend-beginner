@@ -9,16 +9,14 @@ const storage = (dest, filename) => multer.diskStorage({
   },
   filename : (req, file, cb) => {
     const extention = {
-      'image/jpeg' : 'jpeg',
-      'image/png' : 'png',
-      'image/jpg' : 'jpg'
+      'image/jpeg' : '.jpeg',
+      'image/png' : '.png',
+      'image/jpg' : '.jpg'
     }
-    if(!filename && req.params.id){
-      filename = req.params.id
-    }else if(!filename){
+    if(!filename){
       filename = new Date().getTime()
     }
-    cb(null, `${filename}.${extention[file.mimetype]}`)
+    cb(null, `${filename}${extention[file.mimetype]}`)
   }
 })
 

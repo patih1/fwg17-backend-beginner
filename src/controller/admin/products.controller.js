@@ -1,7 +1,6 @@
 const productsModel = require('../../models/products.model')
-const uploadMiddleware = require('../../middleware/upload.middleware')
 const path = require('path')
-const upload = uploadMiddleware('products').single()
+const fs = require('fs/promises')
 
 exports.getAll = async (req, res) => {
   const {
@@ -12,10 +11,22 @@ exports.getAll = async (req, res) => {
   } = req.query
 
   try {
+    const count = await productsModel.countAll(search)
     const products = await productsModel.findAll(search, sortBy, order, page)
+
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
     return res.json({
       success: true,
       message: 'List All products',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage < totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? prevPage : null,
+        totalData: Number(count)
+      },
       results: products
     })
   }catch(err){
@@ -46,10 +57,10 @@ exports.detail = async (req, res) => {
 
 exports.create = async (req,res) => {
   try {
-    const products = await productsModel.insert(req.body)
     if(req.file){
       req.body.image = req.file.filename
     }
+    const products = await productsModel.insert(req.body)
 
     return res.json({
       success: true,
@@ -82,12 +93,19 @@ exports.create = async (req,res) => {
 
 exports.update = async (req,res) => {
   const {id} = req.params
-
+  const data = await productsModel.findOne(id)
   if(req.body.password){
     req.body.password = await argon.hash(req.body.password)
   }
 
+  // console.log(data)
+
   if(req.file){
+    if(data.image){
+      const uploadLocation = path.join(global.path, 'upload', 'products', data.image)
+      fs.rm(uploadLocation)
+      console.log(path)
+    }
     req.body.image = req.file.filename
   }
 
@@ -132,6 +150,11 @@ exports.update = async (req,res) => {
 exports.delete = async(req,res) => {
   const id = Number(req.params.id)
   const products = await productsModel.delete(id)
+  console.log(products.image)
+  if(products.image){
+    const uploadLocation = path.join(global.path, 'upload', 'products', products.image)
+      fs.rm(uploadLocation)
+  }
   try {
     if(products){
       return res.json({

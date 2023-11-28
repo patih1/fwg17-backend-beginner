@@ -129,3 +129,17 @@ exports.searchByCategories = async(category) => {
   const {rows} = await db.query(sql,values)
   return rows
 }
+
+
+
+
+
+exports.countAll = async (keyword='')=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "products"
+  WHERE "name" ILIKE $1
+  `
+  const values = [`%${keyword}%`]
+  const {rows} = await db.query(sql,values)
+  return rows[0].counts
+}

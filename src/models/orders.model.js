@@ -19,7 +19,7 @@ exports.findAll = async (keyword='', sortBy, order, page=1)=>{
   }
 
   const sql = `SELECT *
-  FROM "orders" WHERE "name" ILIKE $1
+  FROM "orders" WHERE "orderNumber" ILIKE $1
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `

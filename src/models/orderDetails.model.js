@@ -1,7 +1,7 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
-  const visibleColumn = ['id','createdAt', 'name']
+exports.findAll = async (key=1, sortBy='id', order, page=1)=>{
+  const visibleColumn = ['id','createdAt']
   const allowOrder = ['asc', 'desc']
   const limit = 10
   const offset = (page - 1) * limit
@@ -19,11 +19,11 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
   }
 
   const sql = `SELECT *
-  FROM "orderDetails" WHERE "name" ILIKE $1
+  FROM "orderDetails" WHERE "orderId" = $1
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
-  const values = [`%${keyword}%`]
+  const values = [Number(key)]
   const {rows} = await db.query(sql,values)
   return rows
 }

@@ -5,6 +5,8 @@ require('dotenv').config({
   path: './.env'
 })
 
+global.path = __dirname
+
 // memanggil framework express dan disimpan dalam variable express agar dapat digunakan dalam program
 const express = require('express')
 
@@ -13,6 +15,7 @@ const morgan = require('morgan')
 
 // mendeklarasikan app sebagai fungsi express yang dipanggil
 const app = express()
+
 
 // app.use = fungsi middleware bersisi callback fungsi yang bersumber dari path spesifik. akan berjalan jika path sesuai dengan sumber fungsi
 

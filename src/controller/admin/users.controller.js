@@ -1,5 +1,7 @@
 const argon = require('argon2')
 const userModel = require('../../models/users.model')
+const path = require('path')
+const fs = require('fs/promises')
 
 // export function getAllUsers
 exports.getAllUsers = async (req, res) => {
@@ -54,10 +56,9 @@ exports.createUsers = async (req,res) => {
       req.body.password = await argon.hash(req.body.password)
     }
 
-    if(req.body.password){
-      req.body.password = await argon.hash(req.body.password)
+    if(req.file){
+      req.body.picture = req.file.filename
     }
-
 
     const user = await userModel.insert(req.body)
     return res.json({
@@ -100,6 +101,21 @@ exports.updateUser = async (req,res) => {
       req.body.picture = req.file.filename
     }
 
+     const data = await userModel.findOne(id)
+  if(req.body.password){
+    req.body.password = await argon.hash(req.body.password)
+  }
+
+  // console.log(data)
+
+  if(req.file){
+    if(data.picture){
+      const uploadLocation = path.join(global.path, 'upload', 'users', data.picture)
+      fs.rm(uploadLocation)
+    }
+    req.body.picture = req.file.filename
+  }
+
     const user = await userModel.update(id, req.body)
     if(user){
       
@@ -135,6 +151,10 @@ exports.updateUser = async (req,res) => {
 exports.deleteUser = async(req,res) => {
   const id = Number(req.params.id)
   const user = await userModel.delete(id)
+  if(user.picture){
+    const uploadLocation = path.join(global.path, 'upload', 'users', user.picture)
+      fs.rm(uploadLocation)
+  }
   try {
     if(user){
       return res.json({
