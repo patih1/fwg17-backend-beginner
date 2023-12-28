@@ -1,9 +1,9 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
+exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6)=>{
   const visibleColumn = ['id','createdAt', 'name', `basePrice`]
   const allowOrder = ['asc', 'desc']
-  const limit = 10
+  const limit = itemLimit
   const offset = (page - 1) * limit
   let sort
   

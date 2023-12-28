@@ -10,6 +10,7 @@ exports.getAll = async (req, res) => {
     search,
     sortBy,
     order,
+    itemLimit
   } = req.query
 
   let {page} = req.query
@@ -20,7 +21,7 @@ exports.getAll = async (req, res) => {
 
   try {
     const count = await productsModel.countAll(search)
-    const products = await productsModel.findAll(search, sortBy, order, page)
+    const products = await productsModel.findAll(search, sortBy, order, page, Number(itemLimit))
 
     const totalPage = Math.ceil(count / 10)
     const nextPage = Number(page) + 1
