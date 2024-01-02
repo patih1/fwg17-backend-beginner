@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6)=>{
+exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, recommended)=>{
   const visibleColumn = ['id','createdAt', 'name', `basePrice`]
   const allowOrder = ['asc', 'desc']
   const limit = itemLimit
@@ -18,8 +18,14 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6)=>{
     sort = `"${sort}"`
   }
 
+  let recomend = ''
+
+  if(recommended){
+    recomend = 'AND "isRecommended" = true'
+  }
+
   const sql = `SELECT *
-  FROM "products" WHERE "name" ILIKE $1
+  FROM "products" WHERE "name" ILIKE $1 ${recomend}
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
