@@ -1,6 +1,6 @@
 const adminRouter = require('express').Router()
 
-adminRouter.use('/users', require('./users.router'))
+adminRouter.use('/users',  require('./users.router'))
 adminRouter.use('/categories', require('./categories.router'))
 adminRouter.use('/message', require('./message.router'))
 adminRouter.use('/orderDetails', require('./orderDetails.router'))
