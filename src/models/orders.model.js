@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy, order, page=1)=>{
+exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
   const visibleColumn = ['id','createdAt', 'name']
   const allowOrder = ['asc', 'desc']
   const limit = 10

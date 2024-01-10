@@ -71,13 +71,15 @@ exports.update = async (id, data)=>{
   }
 
   for(let i in data){
-    if(testnumber([i]) === false){
-      values.push(data[i])
-    }else {
-      values.push(Number(data[i]))
+    if(data[i]){
+      if(testnumber([i]) === false){
+        values.push(data[i])
+      }else {
+        values.push(Number(data[i]))
+      }
+      
+      col.push(`"${i}"=$${values.length}`)
     }
-    
-    col.push(`"${i}"=$${values.length}`)
   }
   console.log(col)
   const sql = `UPDATE "users" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`

@@ -5,11 +5,17 @@ exports.getAll = async (req, res) => {
     search,
     sortBy,
     order,
-    itemLimit,
     recommended
   } = req.query
 
   let {page} = req.query
+  let {itemLimit} = req.query
+
+  console.log(itemLimit)
+
+  if(!itemLimit){
+    itemLimit = 6
+  }
 
   if(!page){
     page = 1
@@ -37,7 +43,7 @@ exports.getAll = async (req, res) => {
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }

@@ -15,6 +15,7 @@ const morgan = require('morgan')
 // mendeklarasikan app sebagai fungsi express yang dipanggil
 const app = express()
 app.use('/uploads/products',express.static('upload/products'))
+app.use('/uploads/users',express.static('upload/users'))
 
 // app.use = fungsi middleware bersisi callback fungsi yang bersumber dari path spesifik. akan berjalan jika path sesuai dengan sumber fungsi
 

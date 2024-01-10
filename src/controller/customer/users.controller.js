@@ -3,33 +3,9 @@ const userModel = require('../../models/users.model')
 const path = require('path')
 const fs = require('fs/promises')
 
-// export function getAllUsers
-exports.getAllUsers = async (req, res) => {
-  const {
-    search,
-    sortBy,
-    order,
-    page
-  } = req.query
-
-  try {
-    const user = await userModel.findAll(search, sortBy, order, page)
-    return res.json({
-      success: true,
-      message: 'List all users',
-      results: user
-    })
-  }catch(err){
-    return res.status(500).json({
-      success: false,
-      message: 'Innternal server Error'
-    })
-  }
-}
-
 // export function detailUser
 exports.detailUser = async (req, res) => {
-  const id = Number(req.params.id)
+  const {id} = req.user
   // mendeklarasikan user sebagai penampung data users yang sudah di filter sesuai id nya
   const user = await userModel.findOne(id)
   // guarding apabila data yang kembali itu kosong, maka di berukan error message dengan status 404, User not found
@@ -38,6 +14,10 @@ exports.detailUser = async (req, res) => {
       success: false,
       message: `User not found`
     })
+  }
+
+  if(user.password){
+    delete user.password
   }
 
   // memberikan response berupa data dalam bentuk json dengan message 'Detail user' 
@@ -49,49 +29,9 @@ exports.detailUser = async (req, res) => {
   })
 }
 
-// export function createUsers
-exports.createUsers = async (req,res) => {
-  try {
-    if(req.body.password){
-      req.body.password = await argon.hash(req.body.password)
-    }
 
-    if(req.file){
-      req.body.picture = req.file.filename
-    }
-
-    const user = await userModel.insert(req.body)
-    return res.json({
-      success: true,
-      message: 'Create user successfully',
-      results: user
-    })
-  }catch(err){
-    switch(err.code){
-      case "23505":
-      return res.status(411).json({
-        success: false,
-        message: 'email is unique'
-      })
-      break;
-      case '23502':
-      return res.status(411).json({
-        success: false,
-        message: 'fullName, password, email cannot be empty'
-      })
-      break;
-      default: 
-      return res.status(500).json({
-        success: false,
-        message: err.code
-      })
-    }
-  }
-}
-
-// export function updateUser
 exports.updateUser = async (req,res) => {
-  const {id} = req.params
+  const {id} = req.user
   try {
     if(req.body.password){
       req.body.password = await argon.hash(req.body.password)
@@ -102,16 +42,13 @@ exports.updateUser = async (req,res) => {
     }
 
      const data = await userModel.findOne(id)
-  if(req.body.password){
-    req.body.password = await argon.hash(req.body.password)
-  }
 
   // console.log(data)
 
   if(req.file){
     if(data.picture){
       const uploadLocation = path.join(global.path, 'upload', 'users', data.picture)
-      fs.rm(uploadLocation)
+      await fs.rm(uploadLocation)
     }
     req.body.picture = req.file.filename
   }
@@ -141,7 +78,7 @@ exports.updateUser = async (req,res) => {
       default: 
       return res.status(500).json({
         success: false,
-        message: err.code
+        message: err.message
       })
     }
   }
@@ -149,7 +86,7 @@ exports.updateUser = async (req,res) => {
 
 // export function updateUser
 exports.deleteUser = async(req,res) => {
-  const id = Number(req.params.id)
+  const {id} = req.user
   const user = await userModel.delete(id)
   if(user.picture){
     const uploadLocation = path.join(global.path, 'upload', 'users', user.picture)

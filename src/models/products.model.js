@@ -8,6 +8,7 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
   let sort
   
   order = allowOrder.includes(order) ? order : 'asc'
+  // console.log(itemLimit)
 
   if(typeof sortBy === 'string'){
     sort = visibleColumn.includes(sortBy) ? sortBy : 'id'

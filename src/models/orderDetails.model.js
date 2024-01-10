@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (key=1, sortBy='id', order, page=1)=>{
+exports.findAll = async (key=0, sortBy='id', order, page=1)=>{
   const visibleColumn = ['id','createdAt']
   const allowOrder = ['asc', 'desc']
   const limit = 10
@@ -19,9 +19,8 @@ exports.findAll = async (key=1, sortBy='id', order, page=1)=>{
   }
 
   const sql = `SELECT *
-  FROM "orderDetails" WHERE "orderId" = $1
+  FROM "orderDetails" WHERE "orderId" > $1
   ORDER BY ${sort} ${order}
-  LIMIT ${limit} OFFSET ${offset}
   `
   const values = [Number(key)]
   const {rows} = await db.query(sql,values)
@@ -37,25 +36,13 @@ exports.findOne = async (id)=>{
 }
 
 exports.insert = async (data)=>{
-  const col = []
-  const values = []
-  const dollar = []
+  const values = [Number(data.productId), Number(data.productSizeId), Number(data.productVariantId), Number(data.quantity), Number(data.orderId)]
 
-  function testnumber(str){
-    return /^[0-9]/.test(str)
-  }
 
-  for(let i in data){
-    if(testnumber(i) === false){
-      values.push(data[i])
-    }else {
-      values.push(Number(data[i]))
-    }
-    
-    col.push(`"${i}"`)
-    dollar.push(`$${values.length}`)
-  }
-  const sql = `INSERT INTO "orderDetails" (${col.join(', ')}) VALUES (${dollar.join(', ')}) RETURNING *`
+  const sql = `insert into "orderDetails" ("productId", "productSizeId", "productVariantId", "quantity", "orderId", "subTotal")
+  VALUES
+  ($1, $2, $3, $4, $5, (select "basePrice" from "products" where "id" = $1) + (select "additionalPrice" from "productVariant" where "id" = $3) + (select "additionalPrice" from "productSize" where "id" = $2) * $4 - (select coalesce((select "discount" from "products" where "id" = $1), 0) * $4) )
+  RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0]
 }

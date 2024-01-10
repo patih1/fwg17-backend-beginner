@@ -102,9 +102,6 @@ exports.updateUser = async (req,res) => {
     }
 
      const data = await userModel.findOne(id)
-  if(req.body.password){
-    req.body.password = await argon.hash(req.body.password)
-  }
 
   // console.log(data)
 
