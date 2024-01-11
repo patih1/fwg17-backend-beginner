@@ -1,4 +1,4 @@
-const userModel = require('../../models/productSize.model')
+const productSizeModel = require('../../models/productSize.model')
 
 exports.getAll = async (req, res) => {
   const {

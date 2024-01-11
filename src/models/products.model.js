@@ -36,7 +36,7 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
 }
 
 exports.findOne = async (id)=>{
-  const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
+  const sql = `SELECT *
   FROM "products" WHERE "id" = $1`
   const values = [id]
   const {rows} = await db.query(sql,values)

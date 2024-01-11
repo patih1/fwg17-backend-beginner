@@ -44,6 +44,7 @@ exports.detail = async (req, res) => {
 exports.create = async (req,res) => {
   try {
     const orders = await ordersModel.insert(req.body)
+    console.log(req.body)
     return res.json({
       success: true,
       message: 'Create orders successfully',
@@ -64,10 +65,68 @@ exports.create = async (req,res) => {
       })
       break;
       default: 
+      // console.log(err)
       return res.status(500).json({
         success: false,
-        message: err
+        message: err.message
       })
     }
+  }
+}
+
+exports.update = async (req,res) => {
+  const {id} = req.params
+  try {
+    const orders = await ordersModel.update(id, req.body)
+    if(orders){
+      return res.json({
+        success: true,
+        message: 'Update orders successfully',
+        results: orders
+      })
+    }else{
+      return res.status(404).json({
+        success: false,
+        message: 'orders not found'
+      })
+    }
+  }catch(err){
+    switch(err.code){
+      case "23505":
+      return res.status(411).json({
+        success: false,
+        message: 'name is unique'
+      })
+      break;
+      default: 
+      return res.status(500).json({
+        success: false,
+        message: err.code
+      })
+    }
+  }
+}
+
+exports.getAllCs = async (req, res) => {
+  const {
+    sortBy,
+    order,
+    page
+  } = req.query
+
+  const id = req.params.id
+
+  try {
+    const orders = await ordersModel.findAllCs(Number(id), sortBy, order, page)
+    return res.json({
+      success: true,
+      message: 'List All orders',
+      results: orders
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: 'Internal server error'
+    })
   }
 }

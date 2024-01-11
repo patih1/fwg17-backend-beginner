@@ -23,24 +23,6 @@ exports.getAll = async (req, res) => {
   }
 }
 
-exports.detail = async (req, res) => {
-  const id = Number(req.params.id)
-  const orderDetails = await orderDetailsModel.findOne(id)
-
-  if(!orderDetails){
-    return res.status(404).json({
-      success: false,
-      message: `orderDetails not found`,
-    })
-  }
-
-  return res.json({
-    success: true,
-    message: `Detail orderDetails`,
-    results: orderDetails
-  })
-}
-
 exports.create = async (req,res) => {
   try {
     const orderDetails = await orderDetailsModel.insert(req.body)
@@ -66,8 +48,27 @@ exports.create = async (req,res) => {
       default: 
       return res.status(500).json({
         success: false,
-        message: err
+        message: err.message
       })
     }
+  }
+}
+
+exports.getAllCs = async (req, res) => {
+  
+  const id = req.params.id
+
+  try {
+    const orderDetails = await orderDetailsModel.findAllCs(Number(id))
+    return res.json({
+      success: true,
+      message: 'List All orderDetails',
+      results: orderDetails
+    })
+  }catch(err){
+    return res.status(500).json({
+      success: false,
+      message: err.message
+    })
   }
 }
