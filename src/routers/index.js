@@ -9,6 +9,6 @@ router.use('/auth', require('./auth.router'))
 router.use('/admin', authMiddleware, roleCheckMiddleware('admin'), require('./admin'))
 router.use('/customer', authMiddleware, require('./customer'))
 router.use('/', require('./unloged'))
-
+  
 module.exports = router
 

@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (num, sortBy='id', order, page=1)=>{
+exports.findAll = async ( sortBy='id', order, page=1)=>{
   const visibleColumn = ['id','createdAt', 'tagId']
   const allowOrder = ['asc', 'desc']
   const limit = 10
@@ -19,11 +19,11 @@ exports.findAll = async (num, sortBy='id', order, page=1)=>{
   }
 
   const sql = `SELECT *
-  FROM "productTags" WHERE "tagId" = $1
+  FROM "productTags"
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
-  const values = [Number(num)]
+  const values = []
   const {rows} = await db.query(sql,values)
   return rows
 }

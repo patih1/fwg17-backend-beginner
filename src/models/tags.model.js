@@ -36,50 +36,36 @@ exports.findOne = async (id)=>{
   return rows[0]
 }
 
-exports.insert = async (data)=>{
+exports.insert = async (data1, data2)=>{
   const col = []
   const values = []
   const dollar = []
 
-  function testnumber(str){
-    return /^[0-9]/.test(str)
-  }
-
-  for(let i in data){
-    if(testnumber(i) === false){
-      values.push(data[i])
-    }else {
-      values.push(Number(data[i]))
-    }
+  for(let i = 0; i < data1.length; i++){
+    col.push(data1[i])
+    values.push(data2[i])
     
-    col.push(`"${i}"`)
     dollar.push(`$${values.length}`)
   }
+
   const sql = `INSERT INTO "tags" (${col.join(', ')}) VALUES (${dollar.join(', ')}) RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
 
 
-exports.update = async (id, data)=>{
+exports.update = async (id, data1, data2)=>{
   const col = []
   const values = [] 
-  values.push(Number(id))
+  values.push(id)
 
-  function testnumber(str){
-    return /^[0-9]/.test(str)
-  }
-
-  for(let i in data){
-    if(testnumber([i]) === false){
-      values.push(data[i])
-    }else {
-      values.push(Number(data[i]))
-    }
+  for(let i = 0; i < data1.length; i++){
+    col.push(data1[i])
+    values.push(data2[i])
     
-    col.push(`"${i}"=$${values.length}`)
+    // dollar.push(`$${values.length}`)
   }
-  console.log(col)
+
   const sql = `UPDATE "tags" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
   RETURNING *`
   const {rows} = await db.query(sql,values)
@@ -91,4 +77,14 @@ exports.delete = async (id)=>{
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
+}
+
+exports.countAll = async (keyword='')=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "tags"
+  WHERE "name" ILIKE $1
+  `
+  const values = [`%${keyword}%`]
+  const {rows} = await db.query(sql,values)
+  return rows[0].counts
 }

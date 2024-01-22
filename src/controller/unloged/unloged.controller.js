@@ -11,8 +11,6 @@ exports.getAll = async (req, res) => {
   let {page} = req.query
   let {itemLimit} = req.query
 
-  console.log(itemLimit)
-
   if(!itemLimit){
     itemLimit = 6
   }

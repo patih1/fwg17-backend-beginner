@@ -28,10 +28,16 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
   return rows
 }
 
-
 exports.findOne = async (id)=>{
   const sql = `SELECT * FROM "users" WHERE "id" = $1`
   const values = [id]
+  const {rows} = await db.query(sql,values)
+  return rows[0]
+}
+
+exports.findOneByEmail = async (email)=>{
+  const sql = `SELECT * FROM "users" WHERE "email" = $1`
+  const values = [email]
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
@@ -94,8 +100,8 @@ exports.delete = async (id)=>{
   return rows[0]
 }
 
-exports.findOneByEmail = async (email)=>{
-  const sql = `SELECT * FROM "users" WHERE "email" = $1`
+exports.phoneNumber = async (email)=>{
+  const sql = `SELECT * FROM "users" WHERE "phoneNumber" = $1`
   const values = [email]
   const {rows} = await db.query(sql,values)
   return rows[0]

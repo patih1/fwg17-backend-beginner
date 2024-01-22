@@ -1,24 +1,42 @@
-const userModel = require('../../models/tags.model')
+const tagsModel = require('../../models/tags.model')
 
 exports.getAll = async (req, res) => {
   const {
     search,
     sortBy,
-    order,
-    page
+    order
   } = req.query
 
+  let {page} = req.query
+
+  if(!page){
+    page = 1
+  }
+
   try {
+    const count = await tagsModel.countAll(search)
     const tags = await tagsModel.findAll(search, sortBy, order, page)
+
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
+
     return res.json({
       success: true,
       message: 'List All tags',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage < totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
       results: tags
     })
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }
@@ -43,7 +61,24 @@ exports.detail = async (req, res) => {
 
 exports.create = async (req,res) => {
   try {
-    const tags = await tagsModel.insert(req.body)
+    const col = []
+    const values = []
+  
+    function testnumber(str){
+      return /^[0-9]/.test(str)
+    }
+  
+    for(let i in req.body){
+      if(testnumber(i) === false){
+        values.push(req.body[i])
+      }else {
+        values.push(Number(req.body[i]))
+      }
+      
+      col.push(`"${i}"`)
+    }
+
+    const tags = await tagsModel.insert(col, values)
     return res.json({
       success: true,
       message: 'Create tags successfully',
@@ -76,7 +111,25 @@ exports.create = async (req,res) => {
 exports.update = async (req,res) => {
   const {id} = req.params
   try {
-    const tags = await tagsModel.update(id, req.body)
+    const col = []
+    const values = [] 
+    // values.push(Number(id))
+  
+    function testnumber(str){
+      return /^[0-9]/.test(str)
+    }
+  
+    for(let i in req.body){
+      if(testnumber([i]) === false){
+        values.push(req.body[i])
+      }else {
+        values.push(Number(req.body[i]))
+      }
+      
+      col.push(`"${i}"=$${values.length+1}`)
+    }
+
+    const tags = await tagsModel.update(id, col, values)
     if(tags){
       return res.json({
         success: true,
@@ -100,7 +153,7 @@ exports.update = async (req,res) => {
       default: 
       return res.status(500).json({
         success: false,
-        message: err.code
+        message: err.message
       })
     }
   }

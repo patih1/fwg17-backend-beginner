@@ -1,4 +1,4 @@
-const userModel = require('../../models/productTags.model')
+const productTagsModel = require('../../models/productTags.model')
 
 exports.getAll = async (req, res) => {
   const {
@@ -18,7 +18,7 @@ exports.getAll = async (req, res) => {
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }
@@ -66,7 +66,7 @@ exports.create = async (req,res) => {
       default: 
       return res.status(500).json({
         success: false,
-        message: err
+        message: err.message
       })
     }
   }
