@@ -22,7 +22,8 @@ app.use('/uploads/users',express.static('upload/users'))
 // fungsi untuk menguraikan request dengan urlencoded dalam body
 app.use(express.urlencoded({extended: false}))
 var corsOptions = {
-  origin: 'http://localhost:5173'
+  // origin: 'http://localhost:5173'
+  origin: 'https://dapper-stroopwafel-a95bfa.netlify.app'
 }
 app.use(cors(corsOptions))
 
