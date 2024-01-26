@@ -23,7 +23,7 @@ app.use('/uploads/users',express.static('upload/users'))
 app.use(express.urlencoded({extended: false}))
 var corsOptions = {
   // origin: 'http://localhost:5173'
-  origin: 'https://coffee-shop-haidar.netlify.app'
+  origin: 'https://coffeeshop.haidar.xyz'
 }
 app.use(cors(corsOptions))
 
