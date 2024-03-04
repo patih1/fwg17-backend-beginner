@@ -4,21 +4,42 @@ exports.getAll = async (req, res) => {
   const {
     search,
     sortBy,
-    order,
-    page
+    order
   } = req.query
+
+  let {page} = req.query
+
+  if(!page || page < 1){
+    page = 1
+  }
 
   try {
     const orders = await ordersModel.findAll(search, sortBy, order, page)
+    if(orders.length < 1){
+      throw new Error('no data')
+    }
+    
+    const count = await ordersModel.countAll(search)
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
+
     return res.json({
       success: true,
-      message: 'List All orders',
+      message: 'List All orderDetails',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage <= totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
       results: orders
     })
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }

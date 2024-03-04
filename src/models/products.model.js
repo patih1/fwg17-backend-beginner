@@ -86,7 +86,7 @@ exports.update = async (id, data)=>{
     
     col.push(`"${i}"=$${values.length}`)
   }
-  console.log(col)
+  
   const sql = `UPDATE "products" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0] 
@@ -99,43 +99,43 @@ exports.delete = async (id)=>{
   return rows[0]
 }
 
-exports.searchByName = async(keyword) => {
-  const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
-  FROM "products" WHERE "name" ILIKE $1
-  `
-  const values = [`%${keyword}%`]
-  const {rows} = await db.query(sql,values)
-  return rows
-}
+// exports.searchByName = async(keyword) => {
+//   const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
+//   FROM "products" WHERE "name" ILIKE $1
+//   `
+//   const values = [`%${keyword}%`]
+//   const {rows} = await db.query(sql,values)
+//   return rows
+// }
 
-exports.searchByPrice = async(max = 1000000, min = 0, ruth) => {
+// exports.searchByPrice = async(max = 1000000, min = 0, ruth) => {
 
-  const allowOrder = ['asc', 'desc']
+//   const allowOrder = ['asc', 'desc']
 
-  ruth = allowOrder.includes(ruth) ? ruth : 'asc'
+//   ruth = allowOrder.includes(ruth) ? ruth : 'asc'
   
-  const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
-  FROM "products" WHERE "basePrice" <= $1 AND "basePrice" >= $2 
-  ORDER BY "basePrice" ${ruth}
-  RETURNING *
-  `
-  const values = [max, min]
-  const {rows} = await db.query(sql,values)
-  return rows
-}
+//   const sql = `SELECT "id", "name", "description", "basePrice", "image", "createdAt"
+//   FROM "products" WHERE "basePrice" <= $1 AND "basePrice" >= $2 
+//   ORDER BY "basePrice" ${ruth}
+//   RETURNING *
+//   `
+//   const values = [max, min]
+//   const {rows} = await db.query(sql,values)
+//   return rows
+// }
 
 
-exports.searchByCategories = async(category) => {
-  const sql = `
-  SELECT "p"."id", "p"."name", "p"."description", "p"."basePrice", "p"."image", "p"."createdAt", 
-  "c"."name" AS "category" FROM "products" "p"
-  JOIN "productCategories" "pc" ON "pc"."productId" = "p"."id"
-  JOIN "categories" "c" ON "c"."id" = "pc"."categoryId" WHERE "c"."name" = $1
-  `
-  const values = [category]
-  const {rows} = await db.query(sql,values)
-  return rows
-}
+// exports.searchByCategories = async(category) => {
+//   const sql = `
+//   SELECT "p"."id", "p"."name", "p"."description", "p"."basePrice", "p"."image", "p"."createdAt", 
+//   "c"."name" AS "category" FROM "products" "p"
+//   JOIN "productCategories" "pc" ON "pc"."productId" = "p"."id"
+//   JOIN "categories" "c" ON "c"."id" = "pc"."categoryId" WHERE "c"."name" = $1
+//   `
+//   const values = [category]
+//   const {rows} = await db.query(sql,values)
+//   return rows
+// }
 
 
 

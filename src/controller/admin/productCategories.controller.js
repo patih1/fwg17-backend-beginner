@@ -1,24 +1,46 @@
-const userModel = require('../../models/productCategories.model')
+const productCategoryModel = require('../../models/productCategories.model')
 
 exports.getAll = async (req, res) => {
   const {
     search,
     sortBy,
-    order,
-    page
+    order
   } = req.query
 
+  let {page} = req.query
+
+  if(!page || page < 1){
+    page = 1
+  }
+
   try {
-    const productCategory = await productCategoryModel.findAll(search, sortBy, order, page)
+    const productCategories = await productCategoryModel.findAll(search, sortBy, order, page)
+    if(productCategories.length < 1){
+      throw new Error('no data')
+    }
+    
+    const count = await productCategoryModel.countAll(search)
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
+
     return res.json({
       success: true,
-      message: 'List All productCategory',
-      results: productCategory
+      message: 'List All productCategories',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage <= totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
+      results: productCategories
     })
   }catch(err){
+    console.log(err)
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }

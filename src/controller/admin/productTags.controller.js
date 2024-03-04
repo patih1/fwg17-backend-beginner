@@ -2,17 +2,37 @@ const productTagsModel = require('../../models/productTags.model')
 
 exports.getAll = async (req, res) => {
   const {
-    search,
     sortBy,
-    order,
-    page
+    order
   } = req.query
 
+  let {page} = req.query
+
+  if(!page || page < 1){
+    page = 1
+  }
+
   try {
-    const productTags = await productTagsModel.findAll(search, sortBy, order, page)
+    const productTags = await productTagsModel.findAll(sortBy, order, page)
+    if(productTags.length < 1){
+      throw new Error('no data')
+    }
+    
+    const count = await productTagsModel.countAll()
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
+
     return res.json({
       success: true,
       message: 'List All productTags',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage <= totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
       results: productTags
     })
   }catch(err){
@@ -22,7 +42,6 @@ exports.getAll = async (req, res) => {
     })
   }
 }
-
 exports.detail = async (req, res) => {
   const id = Number(req.params.id)
   const productTags = await productTagsModel.findOne(id)

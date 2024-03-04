@@ -22,8 +22,11 @@ exports.getAll = async (req, res) => {
   try {
     const count = await productsModel.countAll(search)
     const products = await productsModel.findAll(search, sortBy, order, page, Number(itemLimit), recommended)
+    if(products.length < 1){
+      throw new Error('no data')
+    }
 
-    const totalPage = Math.ceil(count / 10)
+    const totalPage = Math.ceil(count / itemLimit)
     const nextPage = Number(page) + 1
     const prevPage = Number(page) - 1
     return res.json({
@@ -32,7 +35,7 @@ exports.getAll = async (req, res) => {
       pageInfo: {
         currentPage: Number(page),
         totalPage,
-        nextPage: nextPage < totalPage ? nextPage : null,
+        nextPage: nextPage <= totalPage ? nextPage : null,
         prevPage: prevPage < 1 ? null : prevPage,
         totalData: Number(count)
       },

@@ -88,3 +88,13 @@ exports.countAll = async (keyword='')=>{
   const {rows} = await db.query(sql,values)
   return rows[0].counts
 }
+
+exports.countAll = async (keyword='')=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "tags"
+  WHERE "name" ILIKE $1
+  `
+  const values = [`%${keyword}%`]
+  const {rows} = await db.query(sql,values)
+  return rows[0].counts
+}

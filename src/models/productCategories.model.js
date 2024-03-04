@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (num, sortBy='id', order, page=1)=>{
+exports.findAll = async (num, sortBy='id', order='asc', page=1)=>{
   const visibleColumn = ['id','createdAt']
   const allowOrder = ['asc', 'desc']
   const limit = 10
@@ -18,13 +18,23 @@ exports.findAll = async (num, sortBy='id', order, page=1)=>{
     sort = `"${sort}"`
   }
 
-  const sql = `SELECT *
-  FROM "productCategories" WHERE "categoryId" = $1
-  ORDER BY ${sort} ${order}
-  LIMIT ${limit} OFFSET ${offset}
-  `
-  const values = [Number(num)]
-  const {rows} = await db.query(sql,values)
+  let rows
+  if(num){
+    const sql = `SELECT *
+    FROM "productCategories" WHERE "categoryId" = $1
+    ORDER BY ${sort} ${order}
+    LIMIT ${limit} OFFSET ${offset}
+    `
+    const values = [Number(num)]
+    rows = (await db.query(sql,values)).rows
+  }else{
+    const sql = `SELECT *
+    FROM "productCategories"
+    ORDER BY ${sort} ${order}
+    LIMIT ${limit} OFFSET ${offset}
+    `
+    rows = (await db.query(sql)).rows
+  }
   return rows
 }
 
@@ -79,7 +89,7 @@ exports.update = async (id, data)=>{
     
     col.push(`"${i}"=$${values.length}`)
   }
-  console.log(col)
+  
   const sql = `UPDATE "productCategories" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
   RETURNING *`
   const {rows} = await db.query(sql,values)
@@ -91,4 +101,23 @@ exports.delete = async (id)=>{
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
+}
+
+exports.countAll = async (num)=>{
+  let rows
+  if(num){
+    const sql = `SELECT count(id) AS counts 
+    FROM "productCategories"
+    WHERE "categoryId" ILIKE $1
+    `
+  const values = [Number(num)]
+  rows = (await db.query(sql,values)).rows
+  }else{
+    const sql = `SELECT count(id) AS counts 
+    FROM "productCategories"
+    `
+    rows = (await db.query(sql)).rows
+  }
+
+  return rows[0].counts
 }

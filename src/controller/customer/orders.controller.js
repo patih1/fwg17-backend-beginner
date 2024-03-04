@@ -43,8 +43,10 @@ exports.detail = async (req, res) => {
 
 exports.create = async (req,res) => {
   try {
+    if(req.body.error == 'default error'){
+      throw new Error('default error')
+    }
     const orders = await ordersModel.insert(req.body)
-    console.log(req.body)
     return res.json({
       success: true,
       message: 'Create orders successfully',
@@ -65,7 +67,6 @@ exports.create = async (req,res) => {
       })
       break;
       default: 
-      // console.log(err)
       return res.status(500).json({
         success: false,
         message: err.message
@@ -110,23 +111,43 @@ exports.update = async (req,res) => {
 exports.getAllCs = async (req, res) => {
   const {
     sortBy,
-    order,
-    page
+    order
   } = req.query
 
-  const id = req.params.id
+  let {page} = req.query
+
+  if(!page || page < 1){
+    page = 1
+  }
+
+  const {id} = req.user
 
   try {
     const orders = await ordersModel.findAllCs(Number(id), sortBy, order, page)
+    if(orders.length < 1){
+      throw new Error('no data')
+    }
+    
+    const count = await ordersModel.countAll()
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
     return res.json({
       success: true,
-      message: 'List All orders',
+      message: 'List All Orders',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage <= totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
       results: orders
     })
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }

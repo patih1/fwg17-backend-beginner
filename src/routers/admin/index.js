@@ -11,6 +11,7 @@ adminRouter.use('/productSize', require('./productSize.router'))
 adminRouter.use('/tags', require('./tags.router'))
 adminRouter.use('/productTags', require('./productTags.router'))
 adminRouter.use('/productVariant', require('./productVariant.router'))
+adminRouter.use('/productRatings', require('./productRatings.router'))
 adminRouter.use('/promo', require('./promo.router'))
 
 // mengexport userRouter agar dapat digunakan pada file yang membutuhkan

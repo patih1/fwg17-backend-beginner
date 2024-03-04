@@ -66,7 +66,7 @@ exports.update = async (id, data)=>{
     
     col.push(`"${i}"=$${values.length}`)
   }
-  console.log(col)
+  
   const sql = `UPDATE "orderDetails" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
   RETURNING *`
   const {rows} = await db.query(sql,values)
@@ -97,4 +97,14 @@ exports.findAllCs = async (key)=>{
   const values = [key]
   const {rows} = await db.query(sql,values)
   return rows
+}
+
+exports.countAll = async (key=0)=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "orderDetails"
+  WHERE "orderId" > $1
+  `
+  const values = [Number(key)]
+  const {rows} = await db.query(sql,values)
+  return rows[0].counts
 }

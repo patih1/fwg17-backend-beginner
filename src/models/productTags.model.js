@@ -79,7 +79,7 @@ exports.update = async (id, data)=>{
     
     col.push(`"${i}"=$${values.length}`)
   }
-  console.log(col)
+  
   const sql = `UPDATE "productTags" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 
   RETURNING *`
   const {rows} = await db.query(sql,values)
@@ -91,4 +91,12 @@ exports.delete = async (id)=>{
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
+}
+
+exports.countAll = async ()=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "productTags"
+  `
+  const {rows} = await db.query(sql)
+  return rows[0].counts
 }

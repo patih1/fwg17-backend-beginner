@@ -22,33 +22,22 @@ exports.login = async (req, res) => {
         role: user.role
       }
 
-      const token = jwt.sign(payload, process.env.APP_SECRET || 'secretkey')
+      const token = jwt.sign(payload, process.env.APP_SECRET)
 
-      if(verify){
         return res.json({
           success: true,
           message: 'login successfully',
-            result: {
+            results: {
               token: token
             }
         })
-      }
 
 
   }catch(err){
-    switch(err.message || err.code){
-      case 'wrong':
-        return res.status(401).json({
-          success: false,
-          message: 'wrong email or password'
-        })
-      break;
-      default:
-        return res.status(500).json({
-          success: false,
-          message: err
-        })
-    }
+      return res.status(401).json({
+        success: false,
+        message: 'wrong email or password'
+      })
   }
 
 }
@@ -58,7 +47,7 @@ exports.register = async (req, res) => {
   try{
     const {fullName, email, password} = req.body
     const hashedPassword = await argon.hash(password)
-    const user = await userModel.insert({
+    await userModel.insert({
       fullName,
       email,
       password: hashedPassword
@@ -69,18 +58,11 @@ exports.register = async (req, res) => {
       message: `Registered successfully`
     })
   }catch(err){
-    switch(err.code){
-      case "23505":
-        return res.status(411).json({
-          success: false,
-          message: 'Email already used'
-        })
-      break;
-      default:
-        return res.json({
+      return res.status(411).json({
         success: false,
-        message: err.message
+        message: 'Email already used'
       })
-    }
+
+    
   }
 }

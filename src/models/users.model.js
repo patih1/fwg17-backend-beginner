@@ -8,15 +8,8 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
   let sort
   
   order = allowOrder.includes(order) ? order : 'asc'
-
-  if(typeof sortBy === 'string'){
-    sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
-    sort = `"${sort}"`
-  }else{
-    sort = visibleColumn.filter(value => sortBy.includes(value))
-    sort = sort.join('","')
-    sort = `"${sort}"`
-  }
+  sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
+  sort = `"${sort}"`
 
   const sql = `SELECT *
   FROM "users" WHERE "fullName" ILIKE $1
@@ -47,21 +40,13 @@ exports.insert = async (data)=>{
   const values = []
   const dollar = []
 
-  function testnumber(str){
-    return /^[0-9]/.test(str)
-  }
-
   for(let i in data){
-    if(testnumber([i]) === false){
-      values.push(data[i])
-    }else {
-      values.push(Number(data[i]))
-    }
+    values.push(data[i])
     
     col.push(`"${i}"`)
     dollar.push(`$${values.length}`)
   }
-  console.log(col)
+  
   const sql = `INSERT INTO "users" (${col.join(', ')}) VALUES (${dollar.join(', ')}) returning *`
   const {rows} = await db.query(sql,values)
   return rows[0]
@@ -72,22 +57,15 @@ exports.update = async (id, data)=>{
   const values = []
   values.push(Number(id))
 
-  function testnumber(str){
-    return /^[0-9]/.test(str)
-  }
-
   for(let i in data){
     if(data[i]){
-      if(testnumber([i]) === false){
-        values.push(data[i])
-      }else {
-        values.push(Number(data[i]))
-      }
+      values.push(data[i])
+      
       
       col.push(`"${i}"=$${values.length}`)
     }
   }
-  console.log(col)
+  
   const sql = `UPDATE "users" SET ${col.join(', ')}, "updatedAt" = now() WHERE "id" = $1 RETURNING *`
   const {rows} = await db.query(sql,values)
   return rows[0] 
@@ -100,9 +78,12 @@ exports.delete = async (id)=>{
   return rows[0]
 }
 
-exports.phoneNumber = async (email)=>{
-  const sql = `SELECT * FROM "users" WHERE "phoneNumber" = $1`
-  const values = [email]
+exports.countAll = async (keyword='')=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "users"
+  WHERE "fullName" ILIKE $1
+  `
+  const values = [`%${keyword}%`]
   const {rows} = await db.query(sql,values)
-  return rows[0]
+  return rows[0].counts
 }

@@ -16,6 +16,9 @@ exports.getAll = async (req, res) => {
   try {
     const count = await tagsModel.countAll(search)
     const tags = await tagsModel.findAll(search, sortBy, order, page)
+    if(tags.length < 1){
+      throw new Error('no data')
+    }
 
     const totalPage = Math.ceil(count / 10)
     const nextPage = Number(page) + 1
@@ -27,7 +30,7 @@ exports.getAll = async (req, res) => {
       pageInfo: {
         currentPage: Number(page),
         totalPage,
-        nextPage: nextPage < totalPage ? nextPage : null,
+        nextPage: nextPage <= totalPage ? nextPage : null,
         prevPage: prevPage < 1 ? null : prevPage,
         totalData: Number(count)
       },

@@ -2,23 +2,43 @@ const productSizeModel = require('../../models/productSize.model')
 
 exports.getAll = async (req, res) => {
   const {
-    search,
     sortBy,
-    order,
-    page
+    order
   } = req.query
 
+  let {page} = req.query
+
+  if(!page || page < 1){
+    page = 1
+  }
+
   try {
-    const productSize = await productSizeModel.findAll(search, sortBy, order, page)
+    const productSize = await productSizeModel.findAll( sortBy, order, page)
+    if(productSize.length < 1){
+      throw new Error('no data')
+    }
+    
+    const count = await productSizeModel.countAll()
+    const totalPage = Math.ceil(count / 10)
+    const nextPage = Number(page) + 1
+    const prevPage = Number(page) - 1
+
     return res.json({
       success: true,
       message: 'List All productSize',
+      pageInfo: {
+        currentPage: Number(page),
+        totalPage,
+        nextPage: nextPage <= totalPage ? nextPage : null,
+        prevPage: prevPage < 1 ? null : prevPage,
+        totalData: Number(count)
+      },
       results: productSize
     })
   }catch(err){
     return res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: err.message
     })
   }
 }
