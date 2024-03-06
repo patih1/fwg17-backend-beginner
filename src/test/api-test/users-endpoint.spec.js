@@ -51,5 +51,13 @@
 //       .set(Authorization)
 //       expect(body.results.phoneNumber).to.be.eq('+1234123123')
 //     })
+
+//     // it('should return success',async ()=>{
+//     //   const {body} = await request.patch('/customer/users')
+//     //   .field('phoneNumber', '+1234123123')
+//     //   .attach('picture', 'upload/users/updateProfile.png')
+//     //   .set(Authorization)
+//     //   expect(body.success).to.be.true
+//     // })
 //   })
 // })

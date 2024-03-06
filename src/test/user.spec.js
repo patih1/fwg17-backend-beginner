@@ -1,10 +1,10 @@
 // const { expect, should, use } = require("chai");
 // const { describe } = require("mocha");
 // const userController = require('../controller/admin/users.controller');
-// const userModel = require('../models/users.model')
+// // const {findOneByEmail, findAll} = require('../models/users.model')
 
 // const res = {
-//   status : (status) => {
+//   status : () => {
 //     return res
 //   },
 //   json: (param1)=>{
@@ -178,6 +178,7 @@
 //   })
 
 //   it('should return true', async ()=>{
+//     req.body.fullName = "Admin"
 //     const update = await userController.updateUser(req, res)
 //     expect(update.success).to.be.true
 //   })
@@ -253,12 +254,12 @@
 // // describe('user model (find all)', () => {
 
 // //   it('should return object', async () => {
-// //     let findAll = await userModel.findAll()
-// //     expect(typeof findAll).to.be.eq('object')
-// //     findAll = await userModel.findAll('', 'createdAt')
-// //     expect(typeof findAll).to.be.eq('object')
-// //     findAll = await userModel.findAll('', 'id', 'desc')
-// //     expect(typeof findAll).to.be.eq('object')
+// //     let findAllLocal = await findAll()
+// //     expect(typeof findAllLocal).to.be.eq('object')
+// //     findAllLocal = await findAll('', 'createdAt')
+// //     expect(typeof findAllLocal).to.be.eq('object')
+// //     findAllLocal = await findAll('', 'id', 'desc')
+// //     expect(typeof findAllLocal).to.be.eq('object')
 // //   })
 
 // // })
@@ -282,23 +283,23 @@
 
 // // })
 
-// describe('user model (find one by email)', () => {
+// // describe('user model (find one by email)', () => {
 
-//   it('should return object', async () => {
-//     const findAll = await userModel.findOneByEmail('squid@mail.com')
-//     expect(typeof findAll).to.be.eq('object')
-//   })
+// //   it('should return object', async () => {
+// //     const findAll = await findOneByEmail('squid@mail.com')
+// //     expect(typeof findAll).to.be.eq('object')
+// //   })
 
-//   it('should return user with email squid@mail.com', async () => {
-//     const findAll = await userModel.findOneByEmail('squid@mail.com')
-//     expect(findAll.email).to.be.eq('squid@mail.com')
-//   })
+// //   it('should return user with email squid@mail.com', async () => {
+// //     const findAll = await findOneByEmail('squid@mail.com')
+// //     expect(findAll.email).to.be.eq('squid@mail.com')
+// //   })
 
-//   it('should return undefined', async () => {
-//     const findAll = await userModel.findOneByEmail('notfound@mail.com')
-//     expect(findAll).to.be.eq(undefined)
-//   })
+// //   it('should return undefined', async () => {
+// //     const findAll = await findOneByEmail('notfound@mail.com')
+// //     expect(findAll).to.be.eq(undefined)
+// //   })
 
-// })
+// // })
 
 
