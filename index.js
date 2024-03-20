@@ -22,7 +22,7 @@ app.use('/uploads/users',express.static('upload/users'))
 // fungsi untuk menguraikan request dengan urlencoded dalam body
 app.use(express.urlencoded({extended: false}))
 var corsOptions = {
-  origin: 'https://coffeeshop.haidar.xyz'
+  origin: 'coffeeshop.haidar.xyz'
   // origin: process.env.ALLOWED_ORIGIN
 }
 app.use(cors(corsOptions))
