@@ -140,11 +140,15 @@ To run this project, you will need to add the following environment variables to
 | `admin/order-details/:id` | `DELETE` | Delete a order details data |
 
 ### Customer Endpoint
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
 | `customer/users` | `GET` | Get loged user data |
 | `customer/users` | `PATCH` | Update loged user data |
 | `customer/orders` | `POST` | Create orders |
 
 ### Global Endpoint
+| Parameter | Type     | Description                |
+| :-------- | :------- | :------------------------- |
 | `/products` | `GET` | Get all products |
 | `/products/:id` | `GET` | Get detail products |
 
