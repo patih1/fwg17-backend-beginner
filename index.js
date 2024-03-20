@@ -21,9 +21,11 @@ app.use('/uploads/users',express.static('upload/users'))
 
 // fungsi untuk menguraikan request dengan urlencoded dalam body
 app.use(express.urlencoded({extended: false}))
-
-app.use(morgan("dev")) // untuk login akses
-app.use(cors())
+var corsOptions = {
+  // origin: 'http://localhost:5173'
+  origin: process.env.ALLOWED_ORIGIN
+}
+app.use(cors(corsOptions))
 
 // menghubungkan file dengan file index router pada folder src/routers sekaligus menambahkan endpoint /
 app.use('/', require('./src/routers'))
