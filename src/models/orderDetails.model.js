@@ -36,7 +36,13 @@ exports.findOne = async (id)=>{
 }
 
 exports.insert = async (data)=>{
-  const values = [Number(data.productId), Number(data.productSizeId), Number(data.productVariantId), Number(data.quantity), Number(data.orderId)]
+  const values = [
+    Number(data.productId), 
+    Number(data.productSizeId), 
+    Number(data.productVariantId), 
+    Number(data.quantity), 
+    Number(data.orderId),
+  ]
 
 
   const sql = `insert into "orderDetails" ("productId", "productSizeId", "productVariantId", "quantity", "orderId", "subTotal")

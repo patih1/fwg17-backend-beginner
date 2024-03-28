@@ -106,7 +106,7 @@ exports.findAllCs = async (id, sortBy='id', order, page=1)=>{
   const offset = (page - 1) * limit
   let sort
   
-  order = allowOrder.includes(order) ? order : 'asc'
+  order = allowOrder.includes(order) ? order : 'desc'
 
   if(typeof sortBy === 'string'){
     sort = visibleColumn.includes(sortBy) ? sortBy : 'id'

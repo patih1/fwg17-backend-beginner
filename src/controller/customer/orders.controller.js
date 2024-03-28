@@ -1,58 +1,53 @@
 const ordersModel = require('../../models/orders.model')
-
-exports.getAll = async (req, res) => {
-  const {
-    search,
-    sortBy,
-    order,
-    page
-  } = req.query
-
-  try {
-    const orders = await ordersModel.findAll(search, sortBy, order, page)
-    return res.json({
-      success: true,
-      message: 'List All orders',
-      results: orders
-    })
-  }catch(err){
-    return res.status(500).json({
-      success: false,
-      message: 'Internal server error'
-    })
-  }
-}
-
-exports.detail = async (req, res) => {
-  const id = Number(req.params.id)
-  const orders = await ordersModel.findOne(id)
-
-  if(!orders){
-    return res.status(404).json({
-      success: false,
-      message: `orders not found`,
-    })
-  }
-
-  return res.json({
-    success: true,
-    message: `Detail orders`,
-    results: orders
-  })
-}
+const orderDetailsModel = require('../../models/orderDetails.model')
+const db = require('../../lib/db.lib')
 
 exports.create = async (req,res) => {
   try {
+    const {id} = req.user
+    await db.query('BEGIN')
     if(req.body.error == 'default error'){
       throw new Error('default error')
     }
-    const orders = await ordersModel.insert(req.body)
+
+    const orderData = {
+      userId : id,
+      orderNumber : '#' + Date.now(),
+      total : 0,
+      fullName : req.body.fullName,
+      email : req.body.email,
+    }
+
+    console.log(orderData)
+
+    const orders = await ordersModel.insert(orderData)
+
+    const orderDetailsData = {
+      productId : req.body.productId,
+      productSizeId : req.body.productSizeId,
+      productVariantId : req.body.productVariantId,
+      quantity : req.body.quantity,
+      orderId : orders.id
+    }
+    console.log(orderDetailsData)
+
+    await orderDetailsModel.insert(orderDetailsData)
+
+    const data = {
+      total: 'true'
+    }
+
+    const finalData = await ordersModel.update(orders.id, data)
+
+    await db.query('COMMIT')
+
     return res.json({
       success: true,
       message: 'Create orders successfully',
-      results: orders
+      results: finalData
     })
   }catch(err){
+    await db.query('ROLLBACK')
     switch(err.code){
       case "23505":
       return res.status(411).json({
@@ -75,38 +70,38 @@ exports.create = async (req,res) => {
   }
 }
 
-exports.update = async (req,res) => {
-  const {id} = req.params
-  try {
-    const orders = await ordersModel.update(id, req.body)
-    if(orders){
-      return res.json({
-        success: true,
-        message: 'Update orders successfully',
-        results: orders
-      })
-    }else{
-      return res.status(404).json({
-        success: false,
-        message: 'orders not found'
-      })
-    }
-  }catch(err){
-    switch(err.code){
-      case "23505":
-      return res.status(411).json({
-        success: false,
-        message: 'name is unique'
-      })
-      break;
-      default: 
-      return res.status(500).json({
-        success: false,
-        message: err.code
-      })
-    }
-  }
-}
+// exports.update = async (req,res) => {
+//   const {id} = req.params
+//   try {
+//     const orders = await ordersModel.update(id, req.body)
+//     if(orders){
+//       return res.json({
+//         success: true,
+//         message: 'Update orders successfully',
+//         results: orders
+//       })
+//     }else{
+//       return res.status(404).json({
+//         success: false,
+//         message: 'orders not found'
+//       })
+//     }
+//   }catch(err){
+//     switch(err.code){
+//       case "23505":
+//       return res.status(411).json({
+//         success: false,
+//         message: 'name is unique'
+//       })
+//       break;
+//       default: 
+//       return res.status(500).json({
+//         success: false,
+//         message: err.code
+//       })
+//     }
+//   }
+// }
 
 exports.getAllCs = async (req, res) => {
   const {
