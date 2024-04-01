@@ -92,13 +92,11 @@ exports.delete = async (id)=>{
 
 exports.findAllCs = async (key)=>{
 
-  const sql = `select "o"."deliveryAddress", "u"."phoneNumber", "o"."fullName", "p"."discount", "p"."name", "p"."id", "od"."subTotal", "o"."orderNumber", "o"."total", "od"."quantity", "pv"."name" as "variant", "ps"."size"
+  const sql = `select "p"."discount", "p"."name", "p"."id", "od"."subTotal", "od"."quantity", "pv"."name" as "variant", "ps"."size"
   from "products" "p"
   join "orderDetails" "od" on "od"."productId" = "p"."id"
-  join "orders" "o" on "o"."id" = "od"."orderId"
   join "productVariant" pv ON "pv"."id" = "od"."productVariantId"
-  join "users" "u" on "u"."id" = "o"."userId"
-  join "productSize" ps ON "ps"."id" = "od"."productSizeId" where "o"."id" = $1;
+  join "productSize" ps ON "ps"."id" = "od"."productSizeId" where "orderId" = $1;
   `
   const values = [key]
   const {rows} = await db.query(sql,values)

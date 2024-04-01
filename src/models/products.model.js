@@ -1,8 +1,9 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, recommended)=>{
+exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, recommended, filter)=>{
   const visibleColumn = ['id','createdAt', 'name', `basePrice`]
   const allowOrder = ['asc', 'desc']
+  const allowFilter = ['coffee', 'non coffee', 'food']
   const limit = itemLimit
   const offset = (page - 1) * limit
   let sort
@@ -25,14 +26,46 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
     recomend = 'AND "isRecommended" = true'
   }
 
-  const sql = `SELECT *
-  FROM "products" WHERE "name" ILIKE $1 ${recomend}
+  if(filter && (filter.includes('coffee') || filter.includes('non coffee') || filter.includes('food'))){
+    if(filter.includes(',')){
+      filter = filter.split(',')
+      let temp
+      for(let i = 0; i < filter.length; i++){
+        temp += ` AND c.name = '${filter}'`
+      }
+      filter = temp
+    }else{
+      filter = ` AND c.name = '${filter}'`
+    }
+  }else{
+    filter = ''
+  }
+
+  console.log(filter)
+
+  const sql = `select p.id, p.name, p."basePrice", p.description, p.image, p.discount, p."isRecommended",
+  array_agg(distinct c.name ) "category"
+  from products p
+  left join "productCategories" pr on p.id = pr."productId"
+  left join "categories" c on pr."categoryId" = c.id
+  where p."name" ILIKE $1 ${recomend}${filter}
+  group by p.id, p.name, p."basePrice", p.description, p.image, p.discount, p."isRecommended"
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
   const values = [`%${keyword}%`]
   const {rows} = await db.query(sql,values)
   return rows
+}
+
+exports.countAll = async (keyword='')=>{
+  const sql = `SELECT count(id) AS counts 
+  FROM "products"
+  WHERE "name" ILIKE $1
+  `
+  const values = [`%${keyword}%`]
+  const {rows} = await db.query(sql,values)
+  return rows[0].counts
 }
 
 exports.findOne = async (id)=>{
@@ -139,14 +172,3 @@ exports.delete = async (id)=>{
 
 
 
-
-
-exports.countAll = async (keyword='')=>{
-  const sql = `SELECT count(id) AS counts 
-  FROM "products"
-  WHERE "name" ILIKE $1
-  `
-  const values = [`%${keyword}%`]
-  const {rows} = await db.query(sql,values)
-  return rows[0].counts
-}

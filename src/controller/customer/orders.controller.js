@@ -146,3 +146,21 @@ exports.getAllCs = async (req, res) => {
     })
   }
 }
+
+exports.detail = async (req, res) => {
+  const id = Number(req.params.id)
+  const orders = await ordersModel.findOne(id)
+
+  if(!orders){
+    return res.status(404).json({
+      success: false,
+      message: `orders not found`,
+    })
+  }
+
+  return res.json({
+    success: true,
+    message: `Detail orders`,
+    results: orders
+  })
+}

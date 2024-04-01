@@ -5,11 +5,11 @@ exports.getAll = async (req, res) => {
     search,
     sortBy,
     order,
-    recommended
+    recommended,
+    filter
   } = req.query
 
-  let {page} = req.query
-  let {itemLimit} = req.query
+  let {page, itemLimit} = req.query
 
   if(!itemLimit){
     itemLimit = 6
@@ -21,7 +21,7 @@ exports.getAll = async (req, res) => {
 
   try {
     const count = await productsModel.countAll(search)
-    const products = await productsModel.findAll(search, sortBy, order, page, Number(itemLimit), recommended)
+    const products = await productsModel.findAll(search, sortBy, order, page, Number(itemLimit), recommended, filter)
     if(products.length < 1){
       throw new Error('no data')
     }
