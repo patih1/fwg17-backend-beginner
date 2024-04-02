@@ -37,7 +37,6 @@ exports.getAll = async (req, res) => {
       results: productCategories
     })
   }catch(err){
-    console.log(err)
     return res.status(500).json({
       success: false,
       message: err.message

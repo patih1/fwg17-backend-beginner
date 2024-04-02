@@ -9,7 +9,6 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
   let sort
   
   order = allowOrder.includes(order) ? order : 'asc'
-  // console.log(itemLimit)
 
   if(typeof sortBy === 'string'){
     sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
@@ -29,19 +28,21 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
   if(filter && (filter.includes('coffee') || filter.includes('non coffee') || filter.includes('food'))){
     if(filter.includes(',')){
       filter = filter.split(',')
-      let temp
+      let temp = ''
       for(let i = 0; i < filter.length; i++){
-        temp += ` AND c.name = '${filter}'`
+        if(i == 0){
+          temp += ` AND (c.name = '${filter[i]}'`
+        }else{
+          temp += ` OR c.name = '${filter[i]}'`
+        }
       }
-      filter = temp
+      filter = temp + ')'
     }else{
       filter = ` AND c.name = '${filter}'`
     }
   }else{
     filter = ''
   }
-
-  console.log(filter)
 
   const sql = `select p.id, p.name, p."basePrice", p.description, p.image, p.discount, p."isRecommended",
   array_agg(distinct c.name ) "category"

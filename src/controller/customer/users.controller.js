@@ -62,7 +62,6 @@ exports.updateUser = async (req,res) => {
       })
     }
   }catch(err){
-    // console.log(err)
     switch(err.code){
       case "23505":
       return res.status(411).json({

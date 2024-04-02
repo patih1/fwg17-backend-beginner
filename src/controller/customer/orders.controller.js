@@ -9,6 +9,7 @@ exports.create = async (req,res) => {
     if(req.body.error == 'default error'){
       throw new Error('default error')
     }
+    const detail = req.body.detail
 
     const orderData = {
       userId : id,
@@ -18,26 +19,24 @@ exports.create = async (req,res) => {
       email : req.body.email,
     }
 
-    console.log(orderData)
-
     const orders = await ordersModel.insert(orderData)
 
-    const orderDetailsData = {
-      productId : req.body.productId,
-      productSizeId : req.body.productSizeId,
-      productVariantId : req.body.productVariantId,
-      quantity : req.body.quantity,
-      orderId : orders.id
+    for(let i = 0; i < detail.length; i++){
+        const orderDetailsData = {
+          productId : String(detail[i].productId),
+          productSizeId : String(detail[i].sizeId),
+          productVariantId : String(detail[i].variantId),
+          quantity : String(detail[i].quantity),
+          orderId : String(orders.id)
+        }
+        await orderDetailsModel.insert(orderDetailsData)
     }
-    console.log(orderDetailsData)
-
-    await orderDetailsModel.insert(orderDetailsData)
 
     const data = {
       total: 'true'
     }
 
-    const finalData = await ordersModel.update(orders.id, data)
+    const finalData = await ordersModel.update(String(orders.id), data)
 
     await db.query('COMMIT')
 

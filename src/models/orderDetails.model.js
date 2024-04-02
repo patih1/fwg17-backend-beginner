@@ -92,7 +92,7 @@ exports.delete = async (id)=>{
 
 exports.findAllCs = async (key)=>{
 
-  const sql = `select "p"."discount", "p"."name", "p"."id", "od"."subTotal", "od"."quantity", "pv"."name" as "variant", "ps"."size"
+  const sql = `select "p"."discount", "p"."image", "p"."name", "p"."id", "od"."subTotal", "od"."quantity", "pv"."name" as "variant", "ps"."size"
   from "products" "p"
   join "orderDetails" "od" on "od"."productId" = "p"."id"
   join "productVariant" pv ON "pv"."id" = "od"."productVariantId"
