@@ -1,15 +1,13 @@
 const db = require('../lib/db.lib')
 
 exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, recommended, filter)=>{
-  const visibleColumn = ['id','createdAt', 'name', `basePrice`]
+  const visibleColumn = ['id', 'createdAt', 'name', `basePrice`]
   const allowOrder = ['asc', 'desc']
   const allowFilter = ['coffee', 'non coffee', 'food']
   const limit = itemLimit
   const offset = (page - 1) * limit
   let sort
   
-  order = allowOrder.includes(order) ? order : 'asc'
-
   if(typeof sortBy === 'string'){
     sort = visibleColumn.includes(sortBy) ? sortBy : 'id'
     sort = `"${sort}"`
@@ -18,9 +16,11 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
     sort = sort.join('","')
     sort = `"${sort}"`
   }
-
+  
   let recomend = ''
-
+  
+  order = allowOrder.includes(order) ? order : sortBy === 'createdAt' ? 'desc' : 'asc'
+  
   if(recommended){
     recomend = 'AND "isRecommended" = true'
   }
@@ -51,7 +51,7 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1, itemLimit=6, re
   left join "categories" c on pr."categoryId" = c.id
   where p."name" ILIKE $1 ${recomend}${filter}
   group by p.id, p.name, p."basePrice", p.description, p.image, p.discount, p."isRecommended"
-  ORDER BY ${sort} ${order}
+  ORDER BY "p".${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
   const values = [`%${keyword}%`]
