@@ -1,6 +1,6 @@
 const db = require('../lib/db.lib')
 
-exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
+exports.findAll = async (keyword='', sortBy='id', order, page=1, filter)=>{
   const visibleColumn = ['id','createdAt', 'name']
   const allowOrder = ['asc', 'desc']
   const limit = 4
@@ -18,8 +18,14 @@ exports.findAll = async (keyword='', sortBy='id', order, page=1)=>{
     sort = `"${sort}"`
   }
 
+  if(filter === 'on-process' || filter === 'delivered' || filter === 'canceled' || filter === 'ready-to-pick'){
+    filter = ` AND status = '${filter}'`
+  }else{
+    filter = ''
+  }
+
   const sql = `SELECT *
-  FROM "orders" WHERE "orderNumber" ILIKE $1
+  FROM "orders" WHERE "orderNumber" ILIKE $1${filter}
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
@@ -93,13 +99,15 @@ exports.update = async (id, data)=>{
 }
 
 exports.delete = async (id)=>{
-  const sql = `DELETE FROM "orders" WHERE "id" = $1 RETURNING *`
+  const sql = `
+  DELETE FROM "orders" WHERE "id" = $1 RETURNING *
+  `
   const values = [id]
   const {rows} = await db.query(sql,values)
   return rows[0]
 }
 
-exports.findAllCs = async (id, sortBy='id', order, page=1)=>{
+exports.findAllCs = async (id, sortBy='id', order, page=1, filter)=>{
   const visibleColumn = ['id','createdAt', 'name']
   const allowOrder = ['asc', 'desc']
   const limit = 4
@@ -117,8 +125,14 @@ exports.findAllCs = async (id, sortBy='id', order, page=1)=>{
     sort = `"${sort}"`
   }
 
+  if(filter === 'on-process' || filter === 'delivered' || filter === 'canceled' || filter === 'ready-to-pick'){
+    filter = ` AND status = '${filter}'`
+  }else{
+    filter = ''
+  }
+
   const sql = `SELECT *
-  FROM "orders" WHERE "userId" = $1
+  FROM "orders" WHERE "userId" = $1${filter}
   ORDER BY ${sort} ${order}
   LIMIT ${limit} OFFSET ${offset}
   `
@@ -127,10 +141,17 @@ exports.findAllCs = async (id, sortBy='id', order, page=1)=>{
   return rows
 }
 
-exports.countAll = async (keyword='')=>{
+exports.countAll = async (keyword='', filter)=>{
+  
+  if(filter === 'on-process' || filter === 'delivered' || filter === 'canceled' || filter === 'ready-to-pick'){
+    filter = ` AND status = '${filter}'`
+  }else{
+    filter = ''
+  }
+
   const sql = `SELECT count(id) AS counts 
   FROM "orders"
-  WHERE "orderNumber" ILIKE $1
+  WHERE "orderNumber" ILIKE $1${filter}
   `
   const values = [`%${keyword}%`]
   const {rows} = await db.query(sql,values)

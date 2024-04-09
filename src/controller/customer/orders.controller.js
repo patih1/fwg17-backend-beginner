@@ -69,43 +69,11 @@ exports.create = async (req,res) => {
   }
 }
 
-// exports.update = async (req,res) => {
-//   const {id} = req.params
-//   try {
-//     const orders = await ordersModel.update(id, req.body)
-//     if(orders){
-//       return res.json({
-//         success: true,
-//         message: 'Update orders successfully',
-//         results: orders
-//       })
-//     }else{
-//       return res.status(404).json({
-//         success: false,
-//         message: 'orders not found'
-//       })
-//     }
-//   }catch(err){
-//     switch(err.code){
-//       case "23505":
-//       return res.status(411).json({
-//         success: false,
-//         message: 'name is unique'
-//       })
-//       break;
-//       default: 
-//       return res.status(500).json({
-//         success: false,
-//         message: err.code
-//       })
-//     }
-//   }
-// }
-
 exports.getAllCs = async (req, res) => {
   const {
     sortBy,
-    order
+    order,
+    filter
   } = req.query
 
   let {page} = req.query
@@ -117,12 +85,12 @@ exports.getAllCs = async (req, res) => {
   const {id} = req.user
 
   try {
-    const orders = await ordersModel.findAllCs(Number(id), sortBy, order, page)
+    const orders = await ordersModel.findAllCs(Number(id), sortBy, order, page, filter)
     if(orders.length < 1){
       throw new Error('no data')
     }
     
-    const count = await ordersModel.countAll()
+    const count = await ordersModel.countAll('', filter)
     const totalPage = Math.ceil(count / 10)
     const nextPage = Number(page) + 1
     const prevPage = Number(page) - 1
